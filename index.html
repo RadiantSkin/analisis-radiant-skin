@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --brand-burgundy: #9A344A;
@@ -42,10 +41,18 @@
             background-color: var(--brand-pink-light);
             transform: scale(1.05);
         }
-        @keyframes scan-line-anim { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-        .scan-line::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+        @keyframes scan-line-anim { 
+            0% { transform: translateY(-10px); } 
+            100% { transform: translateY(100%); } 
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(154, 52, 74,0.8) 50%, rgba(255,255,255,0) 100%);
+            box-shadow: 0 0 10px var(--brand-burgundy);
             animation: scan-line-anim 3s ease-in-out infinite;
         }
     </style>
@@ -103,10 +110,7 @@
                 <!-- Contenido dinámico del reporte se inyectará aquí -->
             </div>
 
-            <div class="mt-8 flex flex-col sm:flex-row gap-4">
-                <button id="download-pdf-button" type="button" class="btn-primary flex-1">Descargar PDF</button>
-            </div>
-            <button id="restart-button" type="button" class="bg-gray-200 text-gray-700 w-full mt-6 py-2 rounded-full hover:bg-gray-300 transition">Escanear de Nuevo</button>
+            <button id="restart-button" type="button" class="bg-gray-200 text-gray-700 w-full mt-8 py-2 rounded-full hover:bg-gray-300 transition">Escanear de Nuevo</button>
         </section>
     </main>
     
@@ -128,7 +132,6 @@
             logoTech: document.getElementById('logo-tech'),
             promoImage1: document.getElementById('promo-image-1'),
             reportContentContainer: document.getElementById('full-report-content'),
-            downloadPdfButton: document.getElementById('download-pdf-button'),
             restartButton: document.getElementById('restart-button'),
         };
 
@@ -271,7 +274,7 @@
             DOM.reportContentContainer.innerHTML = generateReportHTML();
         }
         
-        function generateReportHTML(isForPdf = false) {
+        function generateReportHTML() {
             const recommendationKey = state.analysisResults.length > 0 ? state.analysisResults[0].problem : "Poros Dilatados";
             const recommendationName = DATA.recommendationMatrix[recommendationKey] || 'Combo Limpieza Inteligente';
             const comboDetails = DATA.comboCatalog[recommendationName];
@@ -305,6 +308,9 @@
                         <img src="${DATA.giftImageUrl}" alt="Regalo" class="h-12 w-12 rounded-full mr-3" />
                         <p>🎁 <strong>Regalo Exclusivo:</strong> ¡Lleva tu combo con el 30% OFF y te regalamos una rutina inteligente!</p>
                     </div>
+                    <div class="mt-2 p-3 bg-green-100 border-l-4 border-green-400 text-green-800 text-sm rounded">
+                        <p>🎉 <strong>¡Extra!</strong> Con tu compra, recibí un regalo sorpresa y un cupón del 10% para tu próxima visita.</p>
+                    </div>
                     <a href="${comboDetails.link}" target="_blank" class="block w-full btn-primary mt-4 text-center">¡Quiero mi combo con el 30% OFF!</a>
                 </div>
                 <div id="complementary-section" class="mt-6">
@@ -325,29 +331,6 @@
             `;
         }
 
-        function generateFullPdfHtml() {
-            const userName = state.userName || "Invitado";
-            const reportHtml = generateReportHTML(true);
-            return `
-                 <div style="font-family: 'Poppins', sans-serif; color: #374151; max-width: 800px; margin: auto;">
-                    <div style="background-color: #9A344A; color: white; padding: 25px; text-align: center;">
-                        <img src="${DATA.logoUrl}" style="height: 50px; margin: 0 auto;"/>
-                        <h1 style="font-size: 26px; margin-top: 15px; margin-bottom: 0; font-weight: 600;">Análisis Facial Personalizado</h1>
-                    </div>
-                    <div style="padding: 30px 40px;">
-                        <p style="font-size: 18px; text-align: center;">¡Hola ${userName}! 💖</p>
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <img src="${state.uploadedImageBase64}" style="max-width: 250px; border-radius: 8px; margin: auto;" />
-                        </div>
-                        ${reportHtml}
-                        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #888;">
-                            <p>Diagnóstico generado por Radiant Skin. Este informe es 100% personalizado y orientativo, no reemplaza la consulta con un profesional médico o cosmetológico.</p>
-                            <p>&copy; 2025 Radiant Skin. Todos los derechos reservados.</p>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
         DOM.userDataForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (!DOM.termsCheckbox.checked) {
@@ -361,18 +344,6 @@
 
         DOM.toAnalysisButton.addEventListener('click', () => DOM.fileInput.click() );
         DOM.fileInput.addEventListener('change', (event) => { if (event.target.files[0]) startImageProcessing(event.target.files[0]); });
-        
-        DOM.downloadPdfButton.addEventListener('click', () => {
-             const pdfHtml = generateFullPdfHtml();
-             const opt = {
-                margin: 0,
-                filename: `analisis-radiant-skin-${state.userName || 'invitado'}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(pdfHtml).save();
-        });
         
         DOM.restartButton.addEventListener('click', () => { init(); });
 
