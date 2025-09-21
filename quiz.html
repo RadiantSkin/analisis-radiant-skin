@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Facial Inteligente - Radiant Skin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rosa: #FDF6F9;   /* Rosa pastel muy suave */
+      --beige: #FFFBF8;   /* Fondo beige */
+      --bordo: #9A344A;   /* Bordó elegante */
+      --dorado: #C8A96B;  /* Dorado suave */
+      --verde: #00C389;   /* Verde de apoyo */
+      --texto: #2b2b2b;   /* Texto neutro */
+    }
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: var(--beige);
+      color: var(--texto);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: var(--rosa);
+      text-align: center;
+      padding: 30px 20px;
+      border-bottom: 4px solid var(--bordo);
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--bordo);
+      font-size: 2rem;
+      margin: 0;
+    }
+    header p {
+        margin: 5px 0 0 0;
+    }
+    .quiz-container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.1);
+      padding: 30px;
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      /* CAMBIO: Borde en dorado */
+      border: 1px solid var(--dorado);
+    }
+    #question-container h2 {
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media(min-width: 600px) {
+      .options-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .option {
+      background: #f7f7f7;
+      border: 2px solid #eee;
+      padding: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s ease;
+      text-align: center;
+      font-weight: 600;
+    }
+    .option:hover {
+      background: var(--rosa);
+      border-color: var(--bordo);
+      transform: translateY(-2px);
+    }
+    #result-container {
+      text-align: center;
+      padding: 25px;
+      background: var(--rosa);
+      border-radius: 15px;
+      display: none;
+    }
+    #result-container h2 {
+      /* CAMBIO: Título con bordó y sombra dorada */
+      color: var(--bordo);
+      text-shadow: 0 1px 1px rgba(200, 169, 107, 0.5);
+      margin-bottom: 10px;
+    }
+    #result-container img {
+      max-width: 200px;
+      margin: 15px auto;
+      border-radius: 12px;
+      border: 4px solid #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,.1);
+      display: block;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 15px;
+      /* CAMBIO: Botón en dorado */
+      background: var(--dorado);
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-weight: 700;
+      transition: background .2s ease;
+    }
+    .btn:hover { 
+        /* CAMBIO: Hover del botón a dorado oscuro */
+        background: #a78955; 
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 20px;
+      background: var(--rosa);
+      color: var(--texto);
+      border-top: 2px solid var(--bordo);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Asesor de Piel Virtual</h1>
+  <p>Descubrí tu tipo de piel y la rutina inteligente que te corresponde</p>
+</header>
+
+<div class="quiz-container">
+  <div id="question-container"></div>
+  <div id="result-container">
+    <h2 id="result-title"></h2>
+    <p id="result-description"></p>
+    <img id="result-image" src="" alt="Combo Recomendado">
+    <h3 id="result-combo-name"></h3>
+    <a id="result-link" href="#" class="btn" target="_blank">Ver mi Combo Ideal</a>
+  </div>
+</div>
+
+<footer>
+  Radiant Skin · Belleza Inteligente en 21 días · @radiantskin.arg
+</footer>
+
+<script>
+  const questions = [
+    {
+      question: "Después de lavarte la cara y esperar una hora, ¿cómo sentís tu piel?",
+      options: [
+        { text: "Tirante y áspera", scores: { seca: 2, sensible: 1 } },
+        { text: "Brillante en toda la cara", scores: { grasa: 2 } },
+        { text: "Brillante en la zona T, pero seca en las mejillas", scores: { mixta: 2 } },
+        { text: "Cómoda y equilibrada", scores: { normal: 2 } },
+      ]
+    },
+    {
+      question: "¿Cómo describirías tus poros?",
+      options: [
+        { text: "Grandes y visibles", scores: { grasa: 1, mixta: 1 } },
+        { text: "Pequeños o imperceptibles", scores: { normal: 1, seca: 1 } },
+        { text: "Han perdido firmeza últimamente", scores: { madura: 2 } },
+        { text: "Se enrojecen con facilidad", scores: { sensible: 1 } },
+      ]
+    },
+    {
+      question: "Al probar un producto nuevo, ¿tu piel reacciona?",
+      options: [
+        { text: "Casi nunca, tolera todo bien", scores: { normal: 1, grasa: 1 } },
+        { text: "Frecuentemente, se irrita o enrojece", scores: { sensible: 3 } },
+        { text: "A veces, siento tirantez", scores: { seca: 1 } },
+        { text: "No he notado reacciones, pero sí líneas finas", scores: { madura: 1 } },
+      ]
+    },
+    {
+      question: "¿Cuál es tu preocupación principal hoy?",
+      options: [
+        { text: "Controlar el brillo y los puntos negros", scores: { grasa: 1, mixta: 1 } },
+        { text: "Hidratación y eliminar la tirantez", scores: { seca: 1 } },
+        { text: "Firmeza, elasticidad y atenuar arrugas", scores: { madura: 2 } },
+        { text: "Calmar rojeces y fortalecer la piel", scores: { sensible: 1 } },
+      ]
+    }
+  ];
+
+  const results = {
+    grasa: {
+      title: "Tu tipo de piel es: Grasa",
+      description: "Tu piel produce un exceso de sebo, lo que puede llevar a poros visibles y brillo. La clave es una limpieza profunda pero equilibrada.",
+      comboName: "Recomendación: Combo Limpieza Inteligente",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-limpieza-inteligente-2-fundas-se-silicona-de-regalo/"
+    },
+    seca: {
+      title: "Tu tipo de piel es: Seca",
+      description: "Tu piel produce menos sebo de lo normal, lo que puede causar tirantez y descamación. Necesitás potenciar la hidratación.",
+      comboName: "Recomendación: Combo Inteligente Esencial",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-esencial-masajeador-ems-espatula-cepillo-5-en-1/"
+    },
+    mixta: {
+      title: "Tu tipo de piel es: Mixta",
+      description: "Tenés una combinación de piel grasa (zona T) y piel normal o seca en las mejillas. Necesitás equilibrar la limpieza sin resecar.",
+      comboName: "Recomendación: Combo Limpieza Inteligente",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-limpieza-inteligente-2-fundas-se-silicona-de-regalo/"
+    },
+    normal: {
+      title: "Tu tipo de piel es: Normal",
+      description: "¡Felicidades! Tu piel está equilibrada. El objetivo es mantener esa salud y luminosidad con una rutina constante y efectiva.",
+      comboName: "Recomendación: Combo Inteligente Esencial",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-esencial-masajeador-ems-espatula-cepillo-5-en-1/"
+    },
+    sensible: {
+      title: "Tu tipo de piel es: Sensible",
+      description: "Tu piel reacciona fácilmente a factores externos o productos nuevos. Necesitás rutinas suaves que calmen y fortalezcan la barrera cutánea.",
+      comboName: "Recomendación: Combo Lifting Inteligente",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/"
+    },
+    madura: {
+      title: "Tu tipo de piel es: Madura",
+      description: "Con el tiempo, la piel pierde colágeno y elasticidad. Tu enfoque debe ser la firmeza y la atenuación de líneas de expresión.",
+      comboName: "Recomendación: Combo Inteligente Premium",
+      image: "https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/"
+    }
+  };
+
+  const questionContainer = document.getElementById('question-container');
+  const resultContainer = document.getElementById('result-container');
+  let currentQuestionIndex = 0;
+  let scores = { grasa: 0, seca: 0, mixta: 0, normal: 0, sensible: 0, madura: 0 };
+
+  function showQuestion() {
+    const question = questions[currentQuestionIndex];
+    const optionsHtml = question.options.map((option, index) =>
+      `<div class="option" onclick="selectAnswer(${index})">${option.text}</div>`
+    ).join('');
+    questionContainer.innerHTML = `<h2>${question.question}</h2><div class="options-grid">${optionsHtml}</div>`;
+  }
+
+  function selectAnswer(optionIndex) {
+    const selectedOption = questions[currentQuestionIndex].options[optionIndex];
+    for (const type in selectedOption.scores) {
+      scores[type] += selectedOption.scores[type];
+    }
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    let maxScore = -1;
+    let resultType = 'normal';
+    for (const type in scores) {
+      if (scores[type] > maxScore) {
+        maxScore = scores[type];
+        resultType = type;
+      }
+    }
+    const result = results[resultType];
+    document.getElementById('result-title').textContent = result.title;
+    document.getElementById('result-description').textContent = result.description;
+    document.getElementById('result-combo-name').textContent = result.comboName;
+    document.getElementById('result-image').src = result.image;
+    document.getElementById('result-link').href = result.link;
+
+    questionContainer.style.display = 'none';
+    resultContainer.style.display = 'block';
+  }
+
+  showQuestion();
+</script>
+</body>
+</html>
+
