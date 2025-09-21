@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Mi Plan de Belleza Inteligente — Radiant Skin</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rosa:#F7DDE6; --beige:#FFFBF8; --fucsia:#E2006A; --dorado:#C8A96B; --verde:#00C389; --texto:#2b2b2b;
+    --gris:#f5f5f5; --bord:#eee; --vidrio:rgba(255,255,255,.65);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--beige);color:var(--texto);font-family:Montserrat,Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* === Ribbon promo fijo (top) === */
+  .promo-ribbon{position:sticky;top:0;z-index:50}
+  .promo-ribbon-inner{
+    position:relative;display:flex;align-items:center;gap:10px;justify-content:center;
+    padding:8px 12px;border-bottom:1px dashed var(--dorado);
+    background:#fff7e1;color:#4d3513;font-size:14px
+  }
+  .promo-ribbon .cta{
+    text-decoration:none;background:#d6336c;color:#fff;
+    padding:8px 14px;border-radius:999px;font-weight:700;
+    box-shadow:0 4px 12px rgba(214,51,108,.25)
+  }
+  .r-clock{display:flex;gap:10px;align-items:center;font-weight:700}
+  .r-pill{background:#fff;border:1px solid #f0d7a0;border-radius:10px;padding:4px 8px;min-width:54px;text-align:center}
+  .r-close{
+    position:absolute;right:8px;top:8px;border:none;background:transparent;cursor:pointer;
+    font-weight:700;color:#6a4b13;font-size:16px;line-height:1
+  }
+  @media(max-width:480px){.promo-ribbon-inner{flex-wrap:wrap;text-align:center}}
+
+  /* HERO compacto */
+  .hero-wrap{max-width:980px;margin:0 auto 10px;padding:0 12px}
+  .hero{position:relative;background:#fff;border-radius:16px;border:1px solid var(--rosa);box-shadow:0 8px 24px rgba(0,0,0,.06);padding:14px}
+  .hero-sticker{position:absolute;top:-10px;left:-10px;width:78px;transform:rotate(-8deg)}
+  .hero-sticker img{width:100%;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
+  .hero-text p{margin:0;font-weight:700;color:#169179}
+
+  .wrap{max-width:980px;margin:0 auto;padding:0 12px}
+  .howto{margin:10px 0;border:1px solid #e8f3ff;background:#f7fbff;color:#0a4e7a;border-radius:12px;padding:10px;font-size:13px}
+  .legend-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .chip{background:var(--gris);border:1px solid #eaeaea;border-radius:999px;padding:8px 12px;font-size:12px;cursor:pointer;user-select:none}
+  .chip.is-active{outline:2px solid var(--dorado);background:#fff9ef}
+  .chip-info{display:none;border:1px solid #ffe5b8;background:#fff9e8;color:#6a4b13;border-radius:12px;padding:10px;font-size:13px}
+  .chip-info.show{display:block}
+
+  .controls select,.controls input[type="date"]{width:100%;padding:12px;border:2px solid var(--rosa);border-radius:12px;background:#fff;font-size:15px}
+  .controls{display:grid;gap:8px;margin:10px 0}
+  @media(min-width:720px){.controls{grid-template-columns:1.2fr 1fr 1fr}}
+
+  /* Tabla */
+  .table-wrap{margin-top:10px;border-radius:14px;overflow:auto;border:1px solid var(--bord)}
+  .table-wrap table{min-width:680px}
+  table.rs{width:100%;border-collapse:separate;border-spacing:0}
+  thead.rs-th th{position:sticky;top:0;background:linear-gradient(180deg,var(--vidrio),#fff);backdrop-filter:blur(8px);border-bottom:1px solid var(--rosa);text-align:left;padding:10px;color:#6d3b58;font-weight:800}
+  table.rs td{padding:10px;border-bottom:1px solid #f3f3f3;vertical-align:top;font-size:15px;line-height:1.35}
+  table.rs tr:nth-child(even){background:#fffdfd}
+  .row-hit{background:#fffaf0 !important; outline:2px solid rgba(200,169,107,.5)}
+  .badge{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;border:1px solid #eee;background:#fafafa;margin-right:6px}
+  .b-limp{background:#fff3ef;border-color:#ffd7c8;color:#b24b1b}
+  .b-lift{background:#fff0fb;border-color:#f8c8ee;color:#a1146c}
+  .b-ledr{background:#fff1f1;border-color:#ffc9c9;color:#b41f1f}
+  .b-leda{background:#eef8ff;border-color:#cfe6ff;color:#0a5198}
+  .b-rest{background:#eefcf7;border-color:#c9f1e3;color:#0c6b4c}
+  .device{font-weight:700;color:#087e5b}
+  .wk{font-weight:800;color:var(--fucsia)}
+  .small{font-size:12px;color:#666}
+
+  /* Progreso + botones */
+  .progress{margin:10px 0 6px}
+  .progress .txt{font-size:13px;color:#444;margin-bottom:6px}
+  .progress .bar{height:10px;background:#f0f0f0;border-radius:999px;overflow:hidden;border:1px solid #ececec}
+  .progress .bar > span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00C389,#62e1bc);border-radius:999px;transition:width .25s}
+  .actionbar{display:grid;gap:10px;margin:12px 0}
+  .btn{appearance:none;border:none;border-radius:999px;padding:14px 16px;font-weight:700;cursor:pointer}
+  .btn-primary{background:var(--verde);color:#fff}
+  .btn-ghost{background:#fff;border:2px solid var(--rosa);color:var(--fucsia)}
+
+  /* SERUMS */
+  .serum-wrap{margin-top:12px;border:1px solid var(--rosa);background:#fff;border-radius:16px;overflow:hidden}
+  .serum-head{padding:12px;background:#fff7fb;color:#a14a7d;text-align:center;font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
+  .serum-grid{display:grid;gap:10px;padding:12px}
+  @media(min-width:720px){.serum-grid{grid-template-columns:repeat(3,1fr)}}
+  .serum-card{border:1px solid #f1e3ea;border-radius:12px;padding:12px}
+  .serum-card h4{margin:0 0 6px;font-size:16px}
+  .serum-card p{margin:0 0 8px;font-size:14px}
+
+  /* PROMO SELL */
+  .promo{margin-top:14px;border:1px solid var(--rosa);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+  .promo-head{padding:12px;background:#ede0e3;color:#673c1a;text-align:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+  .promo-sub{padding:8px 12px;text-align:center;color:#b88b36;font-weight:700}
+  .promo-grid{display:grid;gap:12px;padding:12px}
+  @media(min-width:720px){.promo-grid{grid-template-columns:1.1fr 1fr}}
+  .promo-media img{width:100%;display:block;border-radius:12px}
+  .gift{margin:8px 0;border:1px dashed #b88d5b;background:#fff9f2;padding:10px;border-radius:12px}
+  .promo-cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+  .promo-cta a{text-decoration:none;font-weight:700;border-radius:999px;padding:12px 16px;display:inline-block}
+  .promo-cta .buy{background:#d6336c;color:#fff;box-shadow:0 6px 16px rgba(214,51,108,.25)}
+  .promo-cta .sec{border:2px solid var(--rosa);color:#E2006A;background:#fff}
+
+  /* === Bottom CTA sticky (mobile) === */
+  .bottom-cta{
+    position:fixed;left:0;right:0;bottom:0;z-index:49;
+    background:#ffffff;box-shadow:0 -8px 20px rgba(0,0,0,.12);
+    border-top:1px solid var(--rosa);display:none
+  }
+  .bottom-cta-inner{
+    display:flex;align-items:center;gap:10px;justify-content:space-between;
+    padding:10px 12px env(safe-area-inset-bottom)
+  }
+  .btxt{display:flex;flex-direction:column;gap:2px}
+  .btxt strong{font-size:14px}
+  .bmini{display:flex;gap:6px;font-size:12px;color:#6a4b13}
+  .bpill{border:1px solid #f0d7a0;border-radius:8px;padding:2px 6px;background:#fff7e1}
+  .bcta{
+    appearance:none;border:none;border-radius:999px;padding:12px 16px;
+    background:var(--fucsia);color:#fff;font-weight:800;
+    box-shadow:0 6px 16px rgba(226,0,106,.25);text-decoration:none
+  }
+  .bclose{border:none;background:transparent;font-size:18px;color:#8a6a2c}
+
+  /* Mostrar solo en móvil */
+  @media(max-width:820px){.bottom-cta{display:block}}
+
+  /* No imprimir promos */
+  @media print{.promo-ribbon,.bottom-cta{display:none!important}}
+  @media print{.hero-wrap,.howto,.legend-row,.chip-info,.actionbar,.serum-wrap,.promo{display:none!important}
+    thead.rs-th th{position:static}}
+</style>
+</head>
+<body>
+
+<!-- Ribbon fijo 40% OFF -->
+<div class="promo-ribbon" id="ribbon40" aria-live="polite">
+  <div class="promo-ribbon-inner">
+    <button class="r-close" aria-label="Cerrar promoción" id="ribbonClose">✕</button>
+    <span>🎉 <strong>40% OFF + Washbag 7 en 1</strong> — ¡Últimas unidades!</span>
+    <div class="r-clock" aria-label="Cuenta regresiva">
+      <span class="r-pill"><span id="rb-d">00</span>d</span>
+      <span class="r-pill"><span id="rb-h">00</span>h</span>
+      <span class="r-pill"><span id="rb-m">00</span>m</span>
+      <span class="r-pill"><span id="rb-s">00</span>s</span>
+    </div>
+    <a class="cta" target="_blank" rel="noopener"
+       href="https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/">
+       ¡QUIERO MI 40% OFF!
+    </a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero-wrap">
+  <div class="hero">
+    <div class="hero-sticker">
+      <img src="https://i.imgur.com/t4gmyuw.png" alt="Skin-Li Analyzed – IA Check" loading="lazy">
+    </div>
+    <div class="hero-text"><p>Mi Plan de Belleza Inteligente</p></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <ul><li style="list-style:none">
+    <ul>
+      <li>Seleccioná tu combo, elegí cómo está tu piel hoy y la fecha de inicio.</li>
+      <li>Abajo verás tu rutina en una <strong>tabla de 21 días</strong>.</li>
+    </ul>
+  </li></ul>
+
+  <!-- Selectores (incluye Esencial y orden comercial) -->
+  <div class="controls">
+    <select id="combo" aria-label="Seleccionar combo">
+      <option value="">Elegí tu Combo Inteligente…</option>
+      <option value="esencial">Combo Inteligente Esencial</option>
+      <option value="limpieza">Combo Limpieza Inteligente</option>
+      <option value="lifting">Combo Lifting Inteligente</option>
+      <option value="premium">Combo Inteligente Premium</option>
+    </select>
+    <select id="modo" aria-label="Modo de piel">
+      <option value="estandar">Piel Estándar</option>
+      <option value="sensible">Piel Sensible (más descansos)</option>
+    </select>
+    <input id="inicio" type="date" aria-label="Fecha de inicio">
+  </div>
+
+  <!-- Indicaciones -->
+  <div class="howto"><strong>¿Cómo usar tu plan?</strong>
+    <ol>
+      <li>Elegí el <em>combo</em>, tu <em>modo de piel</em> y la <em>fecha de inicio</em>.</li>
+      <li>Seguí la tabla diaria. Marcá <strong>“Hecho”</strong> al completar: se guarda en tu celular.</li>
+      <li>Para compartir/guardar, tocá <strong>“Descargar mi rutina (PDF)”</strong> y elegí <em>Guardar como PDF</em>.</li>
+    </ol>
+  </div>
+
+  <!-- Chips -->
+  <div class="legend-row">
+    <span class="chip" data-tags="limpieza,exfoliacion">🧴 Limpieza / Exfoliación</span>
+    <span class="chip" data-tags="tonificar,lifting">💆‍♀️ Tonificar / Lifting</span>
+    <span class="chip" data-tags="ledr">🔴 LED Roja (firmeza)</span>
+    <span class="chip" data-tags="leda">🔵 LED Azul (calma)</span>
+    <span class="chip" data-tags="descanso">💧 Descanso activo</span>
+  </div>
+  <div id="chip-info" class="chip-info" aria-live="polite"></div>
+
+  <!-- Progreso -->
+  <div class="progress">
+    <div id="progress-text" class="txt">0 / 21 completados (0%)</div>
+    <div class="bar"><span id="progress-bar"></span></div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-wrap">
+    <table id="tabla" class="rs">
+      <thead class="rs-th">
+        <tr>
+          <th style="width:68px">Día</th>
+          <th>Tarea</th>
+          <th>Dispositivo</th>
+          <th style="width:90px">Fecha</th>
+          <th style="width:80px">Hecho</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Recomendación de SÉRUMS -->
+  <section class="serum-wrap" id="serums">
+    <div class="serum-head">Sérums recomendados para potenciar tu rutina</div>
+    <div class="serum-grid" id="serum-grid"></div>
+  </section>
+
+  <!-- Botonera -->
+  <div class="actionbar">
+    <button id="btn-pdf" class="btn btn-primary">Descargar mi rutina (PDF)</button>
+    <button id="btn-reset" class="btn btn-ghost">Reiniciar progreso</button>
+  </div>
+
+  <!-- BLOQUE PROMO / VENTA -->
+  <section class="promo" aria-labelledby="promo40">
+    <div class="promo-head" id="promo40">¡Promoción de Bienvenida por Tiempo Limitado!</div>
+    <div class="promo-sub">Aprovechá el <strong>40% OFF</strong> en el único combo que incluye los 4 dispositivos esenciales <span class="small">+ rutina personalizada</span>.</div>
+    <div class="promo-grid">
+      <div class="promo-media">
+        <img src="https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp" alt="Combo 4 Dispositivos Radiant Skin con 40% OFF">
+        <img src="https://cdn-blog-backend.tiendanube.com/blogs/019/60d/aae/c07722bbcc7bc7a9a070b74/media/01996873-51ad-7110-addc-bf9c0e2d0094.jpg" alt="Washbag 7 en 1 de regalo" style="margin-top:10px">
+      </div>
+      <div>
+        <h3 style="margin:0 0 8px;font-family:'Playfair Display',serif;">Combo 4: Kit Total – Tecnología y Resultados</h3>
+        <p style="margin:0 0 10px">Rutina avanzada para una piel <strong>saludable, firme y luminosa</strong>.</p>
+
+        <div class="gift" style="margin-bottom:10px">
+          <p style="margin:0 0 6px"><strong>¿Por qué tu piel lo necesita?</strong></p>
+          <p style="margin:0 8px 8px 0">La acumulación de impurezas, pH desequilibrado y baja de colágeno generan opacidad, acné, poros dilatados y pérdida de firmeza.</p>
+          <ul style="margin:0 0 0 18px">
+            <li>✅ Estimula colágeno y elasticidad con <strong>microcorrientes EMS</strong> + <strong>masaje sónico</strong>.</li>
+            <li>✅ Elimina puntos negros y células muertas con <strong>tecnología ultrasónica</strong>.</li>
+            <li>✅ Controla grasa y acné con <strong>cepillo 5 en 1</strong> (limpieza diaria suave).</li>
+            <li>✅ Drena y mejora la circulación para un rostro más saludable.</li>
+          </ul>
+        </div>
+
+        <div class="gift">
+          <p style="margin:0 0 6px"><strong>Incluye los 4 dispositivos:</strong></p>
+          <ul style="margin:0 0 8px 18px">
+            <li><strong>Rodillo EMS</strong>: microcorrientes que tonifican (úsalo con <em>gel conductor</em>).</li>
+            <li><strong>Masajeador Sónico 7 en 1</strong>: reafirma y drena; en modo <em>HOT</em> es ideal para <strong>sérums</strong>.</li>
+            <li><strong>Cepillo 5 en 1</strong>: limpieza multifunción para controlar brillo y brotes.</li>
+            <li><strong>Espátula ultrasónica</strong>: limpieza profunda que regula el pH.</li>
+          </ul>
+          <p style="margin:0"><strong>🎁 Washbag 7 en 1 de REGALO</strong> (muñequera, vincha, cepillo exfoliante, espátula 2 en 1, pad para impurezas y bolsito <em>washbag</em>).</p>
+        </div>
+
+        <p style="margin:10px 0 0"><strong>¡Aprovechá el 40% OFF!</strong> Stock limitado y entrega rápida.</p>
+
+        <div class="promo-cta">
+          <a class="buy" href="https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/" target="_blank" rel="noopener">
+            🛍️ ¡QUIERO MI 40% OFF!
+          </a>
+          <a class="sec" href="https://www.rostroradianteaparatos.com.ar/" target="_blank" rel="noopener">
+            Ver todos los combos
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Barra inferior sticky (móvil) -->
+<div class="bottom-cta" id="bottomCta" aria-live="polite">
+  <div class="bottom-cta-inner">
+    <button class="bclose" id="bClose" aria-label="Ocultar oferta">✕</button>
+    <div class="btxt">
+      <strong>40% OFF + Washbag 7 en 1</strong>
+      <div class="bmini" aria-label="Cuenta regresiva mini">
+        <span class="bpill"><span id="bd">00</span>d</span>
+        <span class="bpill"><span id="bh">00</span>h</span>
+        <span class="bpill"><span id="bm">00</span>m</span>
+        <span class="bpill"><span id="bs">00</span>s</span>
+      </div>
+    </div>
+    <a class="bcta" target="_blank" rel="noopener"
+       href="https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/">
+       ¡Comprar ahora!
+    </a>
+  </div>
+</div>
+
+<script>
+/* =========================
+   PLANNER + SERUMS + CHIPS
+   ========================= */
+(function(){
+  const KEY='rs-planner-v1';
+  const tbody=document.getElementById('tbody');
+  const pbtn=document.getElementById('btn-pdf');
+  const rbtn=document.getElementById('btn-reset');
+  const comboSel=document.getElementById('combo');
+  const modoSel=document.getElementById('modo');
+  const inicioInp=document.getElementById('inicio');
+  const progressBar=document.getElementById('progress-bar');
+  const progressText=document.getElementById('progress-text');
+  const chipInfo=document.getElementById('chip-info');
+  const serumGrid=document.getElementById('serum-grid');
+
+  if(!inicioInp.value){
+    const t=new Date(); t.setMinutes(t.getMinutes()-t.getTimezoneOffset());
+    inicioInp.value=t.toISOString().slice(0,10);
+  }
+
+  /* PLANES 21 días */
+  const planEsencial = [
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🎉 Celebrar resultados','¡Lo lograste!','b-rest'],
+  ];
+  const planLimpieza = [
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🫧 Exfoliación suave','Cepillo facial 5-en-1','b-limp'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['🎉 Celebrar resultados','¡Lo lograste!','b-rest'],
+  ];
+  const planLifting = [
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🎉 Celebrar resultados','¡Lo lograste!','b-rest'],
+  ];
+  const planPremium = [
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🔴 LED roja','Fototerapia','b-ledr'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['🔵 LED azul','Fototerapia','b-leda'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🔴 LED roja','Fototerapia','b-ledr'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['⬆️ Lifting','Masajeador Sónico LED 7-en-1','b-lift'],
+    ['🔵 LED azul','Fototerapia','b-leda'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🧴 Limpieza profunda','Espátula ultrasónica','b-limp'],
+    ['💆‍♀️ Tonificar','Rodillo EMS','b-lift'],
+    ['🔴 LED roja','Fototerapia','b-ledr'],
+    ['💧 Descanso activo','Hidratación','b-rest'],
+    ['🎉 Celebrar resultados','¡Lo lograste!','b-rest'],
+  ];
+  function base(combo){
+    if(combo==='esencial') return planEsencial.slice();
+    if(combo==='limpieza') return planLimpieza.slice();
+    if(combo==='lifting') return planLifting.slice();
+    return planPremium.slice();
+  }
+  function sensible(arr){
+    const out=[];
+    arr.forEach((x,i)=>{
+      out.push(x);
+      const t=(x[0]||'').toLowerCase();
+      const intenso=['limpieza','exfoliación','lifting','tonificar','led roja','led azul'].some(k=>t.includes(k));
+      if(intenso && i%3===2 && out.length<21) out.push(['💧 Descanso activo','Hidratación','b-rest']);
+    });
+    return out.slice(0,21);
+  }
+  function tagsDeTarea(t){
+    t=(t||'').toLowerCase();
+    const tags=[];
+    if(t.includes('limpieza')) tags.push('limpieza');
+    if(t.includes('exfoliación')) tags.push('exfoliacion');
+    if(t.includes('lifting')) tags.push('lifting');
+    if(t.includes('tonificar')) tags.push('tonificar');
+    if(t.includes('led roja')) tags.push('ledr');
+    if(t.includes('led azul')) tags.push('leda');
+    if(t.includes('descanso')) tags.push('descanso');
+    return tags;
+  }
+  function tip(t){
+    t=t.toLowerCase();
+    if(t.includes('limpieza')) return 'Espátula con piel húmeda, 3–5 min, ángulo 30–45°.';
+    if(t.includes('exfoliación')) return 'Cepillo 5-en-1: 60–90 seg, sin presionar fuerte.';
+    if(t.includes('lifting')) return 'Sónico 7-en-1 en modo HOT es ideal para sérums.';
+    if(t.includes('tonificar')) return 'Rodillo EMS: usá gel conductor; 5–8 min en óvalo y pómulos.';
+    if(t.includes('led roja')) return 'LED roja 8–10 min (firmeza).';
+    if(t.includes('led azul')) return 'LED azul 6–8 min (calma).';
+    if(t.includes('descanso')) return 'Hidratante + bruma nano para sellar.';
+    if(t.includes('celebrar')) return 'Compará tu foto Día 21 vs Día 1 ✨';
+    return '';
+  }
+
+  /* SERUMS por combo */
+  const SERUMS = {
+    esencial: [
+      {name:'Ácido Hialurónico 2% + B5', uso:'Hidratación profunda y rebote', como:'Usalo con Sónico 7-en-1 en HOT para mayor absorción.'},
+      {name:'Niacinamida 10% + Zinc', uso:'Poros, brillo y textura', como:'Post-limpieza con espátula y antes de EMS.'},
+      {name:'Vitamina C estable', uso:'Luz y tono parejo', como:'Por la mañana. Evitá usarla junto a retinol.'},
+    ],
+    limpieza: [
+      {name:'Ácido Salicílico 2%', uso:'Puntos negros y brotes', como:'Después de la espátula, días alternos.'},
+      {name:'Niacinamida 10%', uso:'Seborregulación y poros', como:'Ideal tras el cepillo 5 en 1.'},
+      {name:'Centella + Alantoína', uso:'Calma y barrera', como:'Perfecto tras LED Azul o descanso activo.'},
+    ],
+    lifting: [
+      {name:'Péptidos + Colágeno', uso:'Firmeza y elasticidad', como:'Con EMS y Sónico (HOT) favorece penetración.'},
+      {name:'Ácido Hialurónico 2%', uso:'Relleno superficial', como:'Antes del EMS (con gel conductor encima).'},
+      {name:'Retinol suave nocturno', uso:'Líneas finas', como:'No combinar la misma noche con LED Rojo muy intenso.'},
+    ],
+    premium: [
+      {name:'Vitamina C estable', uso:'Luminosidad y manchas', como:'Mañana + LED Rojo potencia resultados.'},
+      {name:'Péptidos + DMAE', uso:'Efecto lifting', como:'Con Sónico 7-en-1 en HOT.'},
+      {name:'Ácido Hialurónico 2% + B5', uso:'Hidratación multicapa', como:'Perfecto en días de Descanso Activo.'},
+    ],
+  };
+  function renderSerums(combo){
+    const list = SERUMS[combo] || [];
+    serumGrid.innerHTML = list.map(s=>`
+      <article class="serum-card">
+        <h4>${s.name}</h4>
+        <p><strong>¿Para qué?</strong> ${s.uso}</p>
+        <p><strong>¿Cómo usarlo?</strong> ${s.como}</p>
+        <p class="small">Tip: sellá con hidratante y protector solar de día.</p>
+      </article>
+    `).join('') || `<div class="small" style="padding:10px">Elegí un combo para ver recomendaciones de sérums.</div>`;
+  }
+
+  /* Estado / progreso */
+  function stateKey(){return `${comboSel.value||''}|${modoSel.value||'estandar'}|${inicioInp.value||''}`;}
+  function save(st){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return{}}}
+  function updateProgress(){
+    const checks = tbody.querySelectorAll('input[type="checkbox"]');
+    const done = Array.from(checks).filter(c=>c.checked).length;
+    const pct = Math.round((done/21)*100);
+    progressBar.style.width = pct + '%';
+    progressText.textContent = `${done} / 21 completados (${pct}%)`;
+  }
+  function clearChipHighlights(){
+    tbody.querySelectorAll('tr').forEach(tr=>tr.classList.remove('row-hit'));
+    document.querySelectorAll('.chip.is-active').forEach(c=>c.classList.remove('is-active'));
+    chipInfo.classList.remove('show'); chipInfo.textContent='';
+  }
+  function applyChip(tags, label){
+    const rows = tbody.querySelectorAll('tr');
+    const dias=[];
+    rows.forEach((tr,idx)=>{
+      const trTags=(tr.getAttribute('data-tags')||'').split(',');
+      const hit = tags.some(t=>trTags.includes(t));
+      tr.classList.toggle('row-hit',hit);
+      if(hit) dias.push(idx+1);
+    });
+    chipInfo.textContent = `${label}: usalo en los días ${dias.join(', ')}.`;
+    chipInfo.classList.add('show');
+    const first = tbody.querySelector('.row-hit');
+    if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  function hookChips(){
+    document.querySelectorAll('.chip[data-tags]').forEach(ch=>{
+      ch.addEventListener('click',()=>{
+        const active = ch.classList.contains('is-active');
+        clearChipHighlights();
+        if(active) return;
+        ch.classList.add('is-active');
+        const tags = ch.getAttribute('data-tags').split(',').map(s=>s.trim());
+        const label = ch.textContent.trim();
+        applyChip(tags,label);
+      });
+    });
+  }
+  function render(){
+    const combo=comboSel.value, modo=modoSel.value, start=inicioInp.value;
+    tbody.innerHTML=''; clearChipHighlights(); renderSerums(combo);
+    if(!combo){ updateProgress(); return; }
+    let plan=base(combo); if(modo==='sensible') plan=sensible(plan);
+    plan.forEach((row,i)=>{
+      const [tarea,disp,bclass]=row;
+      const d0=new Date(start+'T00:00:00'); d0.setDate(d0.getDate()+i);
+      const fecha=d0.toLocaleDateString();
+      const esSemana = [6,13,20].includes(i);
+      const tr=document.createElement('tr');
+      const tags = tagsDeTarea(tarea);
+      tr.setAttribute('data-tags', tags.join(','));
+      tr.innerHTML=`
+        <td><span class="wk">${esSemana? (i===20?'Día 21':'Semana '+((i+1)/7)) : ''}</span><div>${i+1}</div></td>
+        <td><span class="badge ${bclass}">${tarea.split(' ')[0]}</span> ${tarea}<div class="small">💡 ${tip(tarea)}</div></td>
+        <td class="device">${disp}</td>
+        <td class="small">${fecha}</td>
+        <td><input type="checkbox" data-idx="${i}"></td>`;
+      tbody.appendChild(tr);
+    });
+    // restaurar checks
+    const key=stateKey(), st=load(), checked=(st[key]&&st[key].checked)||[];
+    tbody.querySelectorAll('input[type="checkbox"]').forEach((c,idx)=>{c.checked=!!checked.includes(idx)});
+    // listeners
+    tbody.querySelectorAll('input[type="checkbox"]').forEach(c=>{
+      c.addEventListener('change',()=>{
+        const k=stateKey(), s=load(); s[k]=s[k]||{checked:[]};
+        const set=new Set(s[k].checked||[]), i=+c.getAttribute('data-idx');
+        c.checked?set.add(i):set.delete(i);
+        s[k].checked=Array.from(set).sort((a,b)=>a-b); save(s);
+        updateProgress();
+      })
+    });
+    hookChips(); updateProgress();
+  }
+  comboSel.addEventListener('change',render);
+  modoSel.addEventListener('change',render);
+  inicioInp.addEventListener('change',render);
+  pbtn.addEventListener('click',()=>window.print());
+  rbtn.addEventListener('click',()=>{
+    const k=stateKey(), s=load(); delete s[k]; save(s);
+    tbody.querySelectorAll('input[type="checkbox"]').forEach(c=>c.checked=false);
+    updateProgress(); clearChipHighlights();
+  });
+  render();
+})();
+</script>
+
+<script>
+/* =========================
+   PROMOS: RIBBON + BOTTOM
+   ========================= */
+(function(){
+  // Configurá el fin de promo:
+  // const end = new Date('2025-10-31T23:59:59'); // fecha fija
+  const end = (()=>{const t=new Date(); t.setDate(t.getDate()+7); t.setHours(23,59,59,0); return t;})(); // 7 días
+
+  // Ribbon
+  const ribbon = document.getElementById('ribbon40');
+  const rb = {d:document.getElementById('rb-d'), h:document.getElementById('rb-h'),
+              m:document.getElementById('rb-m'), s:document.getElementById('rb-s')};
+  const ribbonClose = document.getElementById('ribbonClose');
+
+  // Bottom bar
+  const bar = document.getElementById('bottomCta');
+  const bb = {d:document.getElementById('bd'), h:document.getElementById('bh'),
+              m:document.getElementById('bm'), s:document.getElementById('bs')};
+  const bClose = document.getElementById('bClose');
+
+  function pad(n){return String(n).padStart(2,'0');}
+  function update(elset, d,h,m,s){
+    elset.d && (elset.d.textContent = pad(d));
+    elset.h && (elset.h.textContent = pad(h));
+    elset.m && (elset.m.textContent = pad(m));
+    elset.s && (elset.s.textContent = pad(s));
+  }
+  function tick(){
+    const now = new Date();
+    const diff = end - now;
+    if(diff <= 0){
+      clearInterval(tmr);
+      ribbon && (ribbon.style.display='none');
+      bar && (bar.style.display='none');
+      return;
+    }
+    const secs = Math.floor(diff/1000);
+    const d = Math.floor(secs/86400);
+    const h = Math.floor((secs%86400)/3600);
+    const m = Math.floor((secs%3600)/60);
+    const s = secs%60;
+    update(rb,d,h,m,s); update(bb,d,h,m,s);
+  }
+  const tmr = setInterval(tick, 1000); tick();
+
+  ribbonClose && ribbonClose.addEventListener('click', ()=>{ ribbon.style.display='none'; });
+  bClose && bClose.addEventListener('click', ()=>{ bar.style.display='none'; });
+})();
+</script>
+</body>
+</html>
