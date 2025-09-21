@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escáner Facial Inteligente | Radiant Skin</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #fffdfc;
+      color: #4a3b4f;
+      line-height: 1.6;
+    }
+    /* Banner countdown */
+    .top-banner {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: linear-gradient(90deg, #fff7fb, #fff0f6, #fcebdc);
+      color: #5a3b53;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-bottom: 1px solid #f3d9e6;
+    }
+    .countdown {
+      display: flex;
+      gap: 8px;
+      font-weight: bold;
+      color: #b88b36;
+    }
+    .countdown div {
+      background: #fff;
+      border: 1px solid #f3d9e6;
+      border-radius: 6px;
+      padding: 4px 8px;
+      min-width: 40px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.05);
+    }
+    .banner-btn {
+      background: #e6007e;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background .3s;
+    }
+    .banner-btn:hover {
+      background: #c5006b;
+    }
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      background: #fff7fb;
+      border-bottom: 1px solid #f3d9e6;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      color: #5a3b53;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      max-width: 650px;
+      margin: 0 auto 1.5rem auto;
+      color: #6a556d;
+    }
+    .hero img {
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 6px 24px rgba(0,0,0,.08);
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 12px 26px;
+      background: #b88b36; /* dorado */
+      color: #fff;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all .3s;
+    }
+    .btn:hover {
+      background: #9c722b;
+    }
+    /* Layout */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #5a3b53;
+      margin-bottom: 30px;
+      font-size: 1.6rem;
+    }
+    .grid-3, .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #f3e6f0;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,.04);
+      position: relative;
+    }
+    .card img {
+      max-width: 100%;
+      border-radius: 12px;
+    }
+    .discount {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: #b88b36;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    /* Reseñas */
+    .reviews {
+      background: #fffdf9;
+      padding: 60px 20px;
+    }
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .review {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    }
+    .review img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+    .review p {
+      font-style: italic;
+      color: #5a3b53;
+    }
+    /* Footer */
+    .footer {
+      background: #5a3b53;
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.9rem;
+    }
+    .notice {
+      font-size: 0.9rem;
+      color: #5a3b53;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Banner con countdown -->
+  <div class="top-banner">
+    <span>🔥 40% OFF + Washbag de regalo · ¡Últimas unidades!</span>
+    <div class="countdown" id="countdown">
+      <div><span id="days">07</span>d</div>
+      <div><span id="hours">00</span>h</div>
+      <div><span id="minutes">00</span>m</div>
+      <div><span id="seconds">00</span>s</div>
+    </div>
+    <a href="#combos" class="banner-btn">QUIERO MI DESCUENTO</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>¿Sabés lo que tu piel necesita?</h1>
+    <p>Belleza inteligente desde tu celular. <strong>Skin-Li</strong> analiza tu rostro y te sugiere una rutina simple con cambios visibles en la primera semana.</p>
+    <img src="https://i.imgur.com/XICYQXJ.gif" alt="Escáner facial IA Radiant Skin" />
+    <br>
+    <a class="btn" href="#combos">Hacer mi escaneo GRATIS</a>
+  </section>
+
+  <!-- Reseñas -->
+  <section class="reviews">
+    <h2>Resultados reales, clientas felices</h2>
+    <div class="review-grid">
+      <div class="review">
+        <p>“En la primera semana ya noté la piel más luminosa. El escaneo desde el celu es rapidísimo y acertó en todo.”</p>
+        <img src="https://i.imgur.com/TZKsymE.png" alt="Antes y después clienta 1" />
+      </div>
+      <div class="review">
+        <p>“La rutina que me dio Skin-Li me ordenó. Compré el combo sugerido y bajó muchísimo la apariencia de poros.”</p>
+        <img src="https://i.imgur.com/NhROd0A.png" alt="Antes y después clienta 2" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Bloque educativo 21 días -->
+  <section class="wrap">
+    <div class="grid-2">
+      <div class="card" style="text-align:left;">
+        <h2>¿Por qué 21 días?</h2>
+        <ul>
+          <li>La piel se renueva aproximadamente cada 21 días.</li>
+          <li>Si no limpiás/exfoliás, el ciclo se bloquea (impurezas y células muertas).</li>
+          <li>Con una rutina inteligente y constante, los cambios se notan desde la primera semana.</li>
+        </ul>
+        <a class="btn" href="#combos">Hacer mi escaneo GRATIS</a>
+      </div>
+      <div class="card">
+        <img src="https://i.imgur.com/scsttmk.png" alt="Gráfico renovación celular en 21 días" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Antes/Después adicional -->
+  <section class="wrap">
+    <div class="grid-2">
+      <div class="card">
+        <img src="https://i.imgur.com/ZKqo4el.png" alt="Mitad antes y mitad después" />
+      </div>
+      <div class="card">
+        <img style="width: 160px; margin-inline: auto;" src="https://i.imgur.com/t4gmyuw.png" alt="Icono Skin-Li" />
+        <p class="notice">Análisis realizado por Skin-Li (IA de Radiant Skin)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Combos -->
+  <section id="combos" class="wrap">
+    <h2>Combos Inteligentes recomendados por IA</h2>
+    <div class="grid-3">
+      <div class="card">
+        <div class="discount">-30%</div>
+        <img src="https://dcdn-us.mitiendanube.com/stores/006/059/491/products/chatgpt-image-16-jun-2025-07_04_06-p-m-53336102a18978359b17506300413674-1024-1024.webp" alt="Combo Esencial" />
+        <h3>Combo Esencial</h3>
+        <p>Masajeador EMS + Espátula Ultrasónica + Cepillo 5 en 1.</p>
+        <a class="btn" href="https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-esencial-masajeador-ems-espatula-cepillo-5-en-1/" target="_blank">Ver combo</a>
+      </div>
+      <div class="card">
+        <div class="discount">-30%</div>
+        <img src="https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-premium-c90dd80220d41199af17496433262794-1024-1024.webp" alt="Combo Lifting" />
+        <h3>Combo Lifting</h3>
+        <p>Masajeador sónico 7 en 1 + Rodillo EMS para cuello y rostro.</p>
+        <a class="btn" href="https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/" target="_blank">Ver combo</a>
+      </div>
+      <div class="card">
+        <div class="discount">-30%</div>
+        <img src="https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp" alt="Combo Inteligente Especial" />
+        <h3>Combo Inteligente Especial</h3>
+        <p>Kit avanzado con aparatología seleccionada por IA.</p>
+        <a class="btn" href="#" target="_blank">Ver combo</a>
+      </div>
+    </div>
+
+    <!-- Combo Premium aparte -->
+    <div class="card" style="margin-top:40px; text-align:center; background:#fff7fb;">
+      <div class="discount">-40%</div>
+      <img src="https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp" alt="Combo Premium" />
+      <h3>Combo Premium</h3>
+      <p>Kit total para cuidado facial completo con aparatología avanzada. <br><strong>Incluye Washbag de regalo 🎁</strong></p>
+      <a class="btn" href="https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/" target="_blank">Ver combo</a>
+    </div>
+  </section>
+
+  <!-- Bloque final CTA -->
+  <section class="wrap">
+    <div class="card" style="text-align:center; background:#fff7fb;">
+      <h2>Tu piel, tu rutina inteligente</h2>
+      <p>Dejá de adivinar. Dale a tu piel exactamente lo que necesita.</p>
+      <a class="btn" href="#hero">Hacer mi escaneo GRATIS ahora</a>
+      <p class="notice">Resultados visibles en la primera semana.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 Radiant Skin · Belleza Inteligente en 21 días</p>
+  </footer>
+
+  <!-- Script countdown -->
+  <script>
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + 7);
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const t = deadline - now;
+      const days = Math.floor(t / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((t % (1000 * 60)) / 1000);
+
+      document.getElementById("days").innerText = days;
+      document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+      document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+      document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+    }
+    setInterval(updateCountdown, 1000);
+  </script>
+
+</body>
+</html>
