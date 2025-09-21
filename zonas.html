@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz de Belleza Inteligente - Radiant Skin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rosa: #FDF6F9;
+      --beige: #FFFBF8;
+      --bordo: #9A344A;
+      --dorado: #C8A96B;
+      --texto: #2b2b2b;
+    }
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: var(--beige);
+      color: var(--texto);
+      margin: 0;
+      padding: 15px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--bordo);
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    p.intro {
+      text-align: center;
+      color: #555;
+      margin: 0 0 12px;
+      font-size: 1rem;
+    }
+    .claim {
+      text-align: center;
+      font-weight: 700;
+      color: var(--bordo);
+      margin-bottom: 20px;
+    }
+    .face-map {
+      position: relative;
+      max-width: 400px;
+      margin: 0 auto 25px;
+    }
+    .face-map svg {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+    /* Estilo final para las zonas interactivas */
+    .zone {
+      fill: var(--rosa);
+      stroke: var(--bordo);
+      stroke-width: 8px;
+      opacity: 0; /* Invisibles por defecto */
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+    .face-map:hover .zone {
+      opacity: 0.7; /* Se muestran al pasar el mouse sobre la imagen */
+    }
+    .zone:hover { 
+        opacity: 1; /* Se resalta la zona específica */
+    }
+    #result-modal {
+      background: var(--rosa);
+      border: 2px solid var(--bordo);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    #result-title {
+      font-family: 'Playfair Display', serif;
+      color: var(--bordo);
+      font-size: 1.3rem;
+      margin: 0;
+    }
+    #result-description {
+      font-size: 1rem;
+      color: #444;
+      margin: 10px 0 15px;
+    }
+    #result-image {
+      max-width: 160px;
+      margin: 15px auto;
+      border-radius: 10px;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+    #result-combo-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 10px;
+      color: var(--bordo);
+    }
+    .btn {
+      display: inline-block;
+      margin: 6px 4px;
+      background: var(--bordo);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .btn:hover {
+      background: #702538;
+      transform: translateY(-2px);
+    }
+    .motivational {
+      margin-top: 12px;
+      font-style: italic;
+      color: var(--dorado);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Seleccioná tu zona y descubrí tu tratamiento inteligente con <span style="color:var(--bordo);">Radiant Skin</span></h1>
+  <p class="intro">Tocá el área del rostro que más te preocupe para ver tu resultado personalizado 💖</p>
+  <p class="claim">✨ Radiant Skin · Belleza inteligente en 21 días ✨</p>
+
+  <div class="face-map">
+    <svg viewBox="0 0 768 1152" xmlns="http://www.w3.org/2000/svg">
+      <!-- Imagen base Skin-Li desde Imgur -->
+      <image href="https://i.imgur.com/z4sAwA6.png" x="0" y="0" width="768" height="1152"/>
+      
+      <!-- Zonas clickeables (ajustadas más abajo y más chicas) -->
+      <rect class="zone" data-treatment="forehead" x="120" y="300" width="180" height="180" rx="20"/>
+      <rect class="zone" data-treatment="cheeks"   x="460" y="300" width="180" height="180" rx="20"/>
+      <rect class="zone" data-treatment="jawline"  x="120" y="500" width="180" height="180" rx="20"/>
+      <rect class="zone" data-treatment="nose"     x="460" y="500" width="180" height="180" rx="20"/>
+    </svg>
+  </div>
+
+  <div id="result-modal">
+    <h2 id="result-title">Tu resultado aparecerá aquí ✨</h2>
+    <p id="result-description">Elegí una zona del rostro para ver tu recomendación.</p>
+    <img id="result-image" src="https://i.imgur.com/TQSZI4h.png" alt="Logo Radiant Skin">
+    <div id="result-combo-name"></div>
+    
+    <!-- Botones -->
+    <div>
+      <a id="result-link" href="#" class="btn" style="display:none;">Ver mi Combo Ideal</a>
+      <a id="link-analisis" href="https://www.rostroradianteaparatos.com.ar/diagnostico-by-skin-li/" class="btn">🔍 Análisis Facial</a>
+      <a id="link-rutina" href="https://github.com/RadiantSkin/analisis-radiant-skin/blob/main/rutina21.html" class="btn">📅 Rutina 21 Días</a>
+      <a id="link-pdf" href="#" onclick="window.print()" class="btn">⬇️ Descargar PDF</a>
+    </div>
+    
+    <p class="motivational">¡Este es tu camino hacia una piel radiante con <span style="color:var(--bordo);">Radiant Skin</span>! 🌸<br>✨ Belleza inteligente en 21 días ✨</p>
+  </div>
+
+<script>
+  const treatments = {
+    forehead: {
+      title: "💭 Resultado: Líneas de Expresión",
+      description: "Tu frente necesita una rutina anti-edad que estimule el colágeno y suavice las arrugas.",
+      comboName: "Recomendación: Combo Premium Inteligente",
+      image: "https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/"
+    },
+    cheeks: {
+      title: "🌸 Resultado: Textura y Pómulos",
+      description: "Necesitás tonificación EMS y limpieza profunda para lograr pómulos definidos y piel lisa.",
+      comboName: "Recomendación: Combo Lifting Inteligente",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/"
+    },
+    nose: {
+      title: "✨ Resultado: Poros en la Nariz",
+      description: "Tu piel necesita limpieza ultrasónica y exfoliación suave para purificar sin irritar.",
+      comboName: "Recomendación: Combo Limpieza Inteligente",
+      image: "https://dcdn-us.mitiendanube.com/stores/006/059/491/products/chatgpt-image-16-jun-2025-07_04_06-p-m-53336102a18978359b17506300413674-1024-1024.webp",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-limpieza-inteligente-2-fundas-se-silicona-de-regalo/"
+    },
+    jawline: {
+      title: "💎 Resultado: Mentón y Papada",
+      description: "Tu zona mandibular necesita tecnología EMS para redefinir el óvalo facial y mejorar la flacidez.",
+      comboName: "Recomendación: Combo Lifting Inteligente",
+      image: "https://i.imgur.com/bqCWPce.png",
+      link: "https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/"
+    }
+  };
+
+  const resultTitle = document.getElementById('result-title');
+  const resultDescription = document.getElementById('result-description');
+  const resultImage = document.getElementById('result-image');
+  const resultComboName = document.getElementById('result-combo-name');
+  const resultLink = document.getElementById('result-link');
+
+  document.querySelectorAll('.zone').forEach(zone => {
+    zone.addEventListener('click', () => {
+      const data = treatments[zone.dataset.treatment];
+      resultTitle.textContent = data.title;
+      resultDescription.textContent = data.description;
+      resultImage.src = data.image;
+      resultComboName.textContent = data.comboName;
+      resultLink.href = data.link;
+      resultLink.style.display = 'inline-block';
+    });
+  });
+</script>
+
+</body>
+</html>
+
