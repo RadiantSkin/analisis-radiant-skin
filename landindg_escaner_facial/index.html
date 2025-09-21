@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Facial Inteligente - Radiant Skin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-burgundy: #9A344A;
+            --brand-pink-light: #FDF6F9;
+            --brand-pink: #F8D8E6;
+        }
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-brand-pink-light { background-color: var(--brand-pink-light); }
+        .btn-primary {
+            background-color: var(--brand-burgundy);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #7A293A;
+            transform: translateY(-2px);
+        }
+        .btn-primary:disabled {
+            background-color: #C5919D;
+            cursor: not-allowed;
+        }
+        .concern-option {
+            border: 2px solid var(--brand-pink);
+            transition: all 0.2s ease-in-out;
+        }
+        .concern-option.selected {
+            border-color: var(--brand-burgundy);
+            background-color: var(--brand-pink-light);
+            transform: scale(1.05);
+        }
+        @keyframes scan-line-anim { 
+            0% { transform: translateY(-10px); } 
+            100% { transform: translateY(100%); } 
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(154, 52, 74,0.8) 50%, rgba(255,255,255,0) 100%);
+            box-shadow: 0 0 10px var(--brand-burgundy);
+            animation: scan-line-anim 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-brand-pink-light min-h-screen flex items-center justify-center p-4">
+
+    <main id="app-container" class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <section id="start-screen" class="p-6 text-center">
+            <img id="logo-start" src="" alt="Logo de Radiant Skin" class="h-10 w-auto mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-gray-800">Diagnóstico Facial Inteligente</h1>
+            <h2 class="text-md text-[#9A344A] font-semibold">Belleza Inteligente desde Casa</h2>
+            <div class="my-4 space-y-4">
+                <img id="promo-image-1" src="" alt="Skin Li analiza tu rostro" class="rounded-xl w-full max-w-xs mx-auto">
+            </div>
+            <form id="user-data-form" class="mt-6 text-left">
+                <p class="text-xs text-center text-gray-500 mb-4">Este análisis, realizado con IA, es una orientación visual y no reemplaza la consulta profesional.</p>
+                <input type="text" id="user-name" placeholder="Tu nombre" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-burgundy">
+                <input type="email" id="user-email" placeholder="Tu email" required class="w-full px-4 py-2 mt-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-burgundy">
+                <label class="text-xs flex items-center justify-center text-gray-600 transition-colors mt-4">
+                    <input type="checkbox" id="terms-checkbox" required class="mr-2">
+                    Autorizo el uso de mi imagen para el diagnóstico.
+                </label>
+                <button type="submit" class="btn-primary w-full mt-4">Comenzar Escaneo Inteligente</button>
+            </form>
+        </section>
+
+        <section id="concern-screen" class="hidden p-6 text-center">
+             <h3 class="text-xl font-bold text-gray-800">¡Hola, <span id="greet-name"></span>!</h3>
+            <p class="text-gray-600 mt-2">Para personalizar tu diagnóstico, selecciona hasta 3 de tus principales preocupaciones.</p>
+            <div id="concern-options" class="grid grid-cols-2 gap-3 mt-6"></div>
+            <button id="to-analysis-button" type="button" class="btn-primary w-full mt-6" disabled>Subir mi foto para Análisis</button>
+            <input type="file" id="file-input" class="hidden" accept="image/*" capture="user">
+        </section>
+
+        <section id="analysis-screen" class="hidden p-4">
+            <h3 class="text-center text-xl font-bold text-gray-800 mb-4">Iniciando Motor SmartGlow®...</h3>
+            <div class="relative w-full aspect-square mx-auto rounded-lg overflow-hidden bg-gray-200">
+                <img id="user-image-preview" src="" alt="Foto del usuario para análisis" class="w-full h-full object-cover">
+                <div class="scan-line"></div>
+            </div>
+            <div class="mt-6 px-2">
+                <div class="w-full bg-[#F8D8E6] rounded-full h-4"><div id="progress-bar-fill" class="bg-brand-burgundy h-4 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                <p id="analysis-text" class="text-center mt-2 text-sm text-gray-600 font-semibold"></p>
+            </div>
+        </section>
+
+        <section id="technical-screen" class="hidden p-6 md:p-8">
+             <div class="text-center mb-6">
+                <img id="logo-tech" src="" alt="Logo de Radiant Skin" class="w-20 mx-auto mb-2">
+                <h2 class="text-2xl font-bold text-gray-800">Análisis Facial Personalizado</h2>
+            </div>
+            
+            <div id="full-report-content" class="space-y-6">
+                <!-- Contenido dinámico del reporte se inyectará aquí -->
+            </div>
+
+            <button id="restart-button" type="button" class="bg-gray-200 text-gray-700 w-full mt-8 py-2 rounded-full hover:bg-gray-300 transition">Escanear de Nuevo</button>
+        </section>
+    </main>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const DOM = {
+            screens: { start: document.getElementById('start-screen'), concern: document.getElementById('concern-screen'), analysis: document.getElementById('analysis-screen'), technical: document.getElementById('technical-screen') },
+            userDataForm: document.getElementById('user-data-form'),
+            userNameInput: document.getElementById('user-name'),
+            termsCheckbox: document.getElementById('terms-checkbox'),
+            greetName: document.getElementById('greet-name'),
+            concernOptions: document.getElementById('concern-options'),
+            toAnalysisButton: document.getElementById('to-analysis-button'),
+            fileInput: document.getElementById('file-input'),
+            userImagePreview: document.getElementById('user-image-preview'),
+            progressBarFill: document.getElementById('progress-bar-fill'),
+            analysisText: document.getElementById('analysis-text'),
+            logoStart: document.getElementById('logo-start'),
+            logoTech: document.getElementById('logo-tech'),
+            promoImage1: document.getElementById('promo-image-1'),
+            reportContentContainer: document.getElementById('full-report-content'),
+            restartButton: document.getElementById('restart-button'),
+        };
+
+        const DATA = {
+            logoUrl: "https://i.imgur.com/f1lQyDY.jpg",
+            promoImageUrl: "https://i.imgur.com/gITwpdZ.jpg", 
+            giftImageUrl: "https://i.imgur.com/NCOwiq2.jpg",
+            diagnosisCatalog: [
+                { zone: "Contorno de Ojos", problem: "Patas de Gallo", description: "Líneas finas asociadas a la gesticulación y pérdida de elasticidad." },
+                { zone: "Contorno de Ojos", problem: "Bolsas y Ojeras", description: "Hinchazón y pigmentación oscura por fatiga o retención de líquidos." },
+                { zone: "Contorno de Ojos", problem: "Párpados Caídos", description: "Ligera caída del párpado superior que puede dar apariencia de cansancio." },
+                { zone: "Frente", problem: "Líneas de Expresión", description: "Líneas horizontales por actividad muscular y deshidratación." },
+                { zone: "Entrecejo", problem: "Ceño Fruncido", description: "Líneas verticales entre las cejas asociadas a la expresión facial." },
+                { zone: "Peribucal", problem: "Líneas de Marioneta", description: "Líneas desde las comisuras de los labios hacia el mentón." },
+                { zone: "Peribucal", problem: "Líneas Peribucales", description: "Pequeñas arrugas verticales sobre el labio superior ('código de barras')." },
+                { zone: "Mejillas", problem: "Manchas y Tono Desigual", description: "Variaciones en la pigmentación, posiblemente por exposición solar." },
+                { zone: "Zona T", problem: "Poros Dilatados", description: "Apertura visible de poros, relacionada con exceso de sebo." },
+                { zone: "Zona T", problem: "Puntos Negros", description: "Comedones abiertos por obstrucción de poros." },
+                { zone: "Cuello y Óvalo Facial", problem: "Flacidez y Papada", description: "Pérdida de firmeza en el contorno facial y cuello." }
+            ],
+            productCatalog: [ 
+                { id: 1, name: "Cepillo limpiador facial rosa", image: "https://i.imgur.com/ORGqti0.jpg" }, 
+                { id: 2, name: "Espátula Ultrasónica", image: "https://i.imgur.com/j6vHhoh.jpg" }, 
+                { id: 3, name: "Masajeador 7 en 1", image: "https://i.imgur.com/pj7rMyU.jpg" }, 
+                { id: 4, name: "Rodillo Marcador de Mandíbula", image: "https://i.imgur.com/sm1rJ9v.jpg" } 
+            ],
+            recommendationMatrix: { 
+                'Flacidez y Papada': 'Combo Lifting Inteligente', 'Líneas de Expresión': 'Combo Lifting Inteligente', 'Líneas de Marioneta': 'Combo Lifting Inteligente', 'Líneas Peribucales': 'Combo Lifting Inteligente', 'Párpados Caídos': 'Combo Lifting Inteligente',
+                'Patas de Gallo': 'Combo Lifting Inteligente', 'Bolsas y Ojeras': 'Combo Lifting Inteligente', 
+                'Ceño Fruncido': 'Combo Lifting Inteligente', 'Poros Dilatados': 'Combo Limpieza Inteligente', 
+                'Puntos Negros': 'Combo Limpieza Inteligente', 'Manchas y Tono Desigual': 'Combo Limpieza Inteligente' 
+            },
+            comboCatalog: { 
+                'Combo Lifting Inteligente': { productIds: [3, 4], link: "https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/", image: "https://i.imgur.com/arHXsEg.jpg" }, 
+                'Combo Limpieza Inteligente': { productIds: [1, 2], link: "https://www.rostroradianteaparatos.com.ar/productos/combo-limpieza-inteligente-2-fundas-se-silicona-de-regalo/", image: "https://i.imgur.com/AWqMKFs.jpg" } 
+            },
+            analysisSteps: [ "Calibrando sensores...", "Analizando Tono...", "Midiendo Firmeza...", "Detectando Poros...", "Evaluando Líneas...", "¡Generando tu combo!" ]
+        };
+
+        let state = {};
+
+        function init() {
+            state = { currentScreen: 'start', userName: '', userConcerns: [], uploadedImageBase64: null, analysisResults: [] };
+            DOM.userDataForm.reset();
+            DOM.logoStart.src = DATA.logoUrl;
+            DOM.promoImage1.src = DATA.promoImageUrl;
+            if (DOM.logoTech) DOM.logoTech.src = DATA.logoUrl;
+
+            DOM.concernOptions.innerHTML = '';
+            DATA.diagnosisCatalog.forEach(concern => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = concern.problem;
+                button.className = 'concern-option p-3 rounded-lg font-semibold text-gray-700 text-sm';
+                button.onclick = () => {
+                    const index = state.userConcerns.indexOf(concern.problem);
+                    if (index > -1) {
+                        state.userConcerns.splice(index, 1);
+                        button.classList.remove('selected');
+                    } else if (state.userConcerns.length < 3) {
+                        state.userConcerns.push(concern.problem);
+                        button.classList.add('selected');
+                    }
+                    DOM.toAnalysisButton.disabled = state.userConcerns.length === 0;
+                };
+                DOM.concernOptions.appendChild(button);
+            });
+            navigateTo('start');
+        }
+
+        function navigateTo(screenName) {
+            Object.values(DOM.screens).forEach(screen => screen.classList.add('hidden'));
+            if(DOM.screens[screenName]) {
+                DOM.screens[screenName].classList.remove('hidden');
+            }
+        }
+
+        function startImageProcessing(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                alert('Por favor, selecciona un archivo de imagen válido.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.uploadedImageBase64 = e.target.result;
+                DOM.userImagePreview.src = state.uploadedImageBase64;
+                navigateTo('analysis');
+                runAnalysisSimulation();
+            };
+            reader.onerror = () => {
+                alert('Error al leer el archivo. Intenta con otra imagen.');
+                navigateTo('concern'); 
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function runAnalysisSimulation() {
+            let step = 0;
+            const runStep = () => {
+                if (step >= DATA.analysisSteps.length) {
+                    clearInterval(analysisInterval);
+                    generateDiagnosis();
+                    populateTechnicalScreen();
+                    navigateTo('technical');
+                    return;
+                }
+                const progress = ((step + 1) / DATA.analysisSteps.length) * 100;
+                DOM.progressBarFill.style.width = `${progress}%`;
+                DOM.analysisText.textContent = DATA.analysisSteps[step];
+                step++;
+            };
+            const analysisInterval = setInterval(runStep, 800);
+            runStep();
+        }
+
+        function generateDiagnosis() {
+            const primaryFindings = DATA.diagnosisCatalog
+                .filter(d => state.userConcerns.includes(d.problem))
+                .map(d => ({ ...d, severity: "Necesita Atención" }));
+            
+            const unselectedProblems = DATA.diagnosisCatalog.filter(d => !state.userConcerns.includes(d.problem));
+            
+            while(primaryFindings.length < 5 && unselectedProblems.length > 0) {
+                 const randomIndex = Math.floor(Math.random() * unselectedProblems.length);
+                 const expertFinding = unselectedProblems.splice(randomIndex, 1)[0];
+                 if (!primaryFindings.find(r => r.problem === expertFinding.problem)) {
+                    primaryFindings.push({ ...expertFinding, severity: "Moderado" });
+                }
+            }
+
+            state.analysisResults = primaryFindings.map(r => ({ ...r, detectedSign: `${r.problem} (${r.severity})` }));
+
+            if (state.analysisResults.length === 0) {
+                const defaultFinding = DATA.diagnosisCatalog[0];
+                state.analysisResults = [{...defaultFinding, detectedSign: `${defaultFinding.problem} (Leve)`}];
+            }
+        }
+
+        function populateTechnicalScreen() {
+            DOM.reportContentContainer.innerHTML = generateReportHTML();
+        }
+        
+        function generateReportHTML() {
+            const recommendationKey = state.analysisResults.length > 0 ? state.analysisResults[0].problem : "Poros Dilatados";
+            const recommendationName = DATA.recommendationMatrix[recommendationKey] || 'Combo Limpieza Inteligente';
+            const comboDetails = DATA.comboCatalog[recommendationName];
+            
+            let resultsListHtml = '';
+            state.analysisResults.slice(0, 5).forEach(r => {
+                 resultsListHtml += `<li class="flex items-start"><span class="mr-2">🔍</span><div><span class="font-semibold">${r.problem}</span>: ${r.description}</div></li>`;
+            });
+            
+            let complementaryHtml = '';
+            if (recommendationName === 'Combo Limpieza Inteligente') {
+                complementaryHtml = `<li><strong>Sérum de Niacinamida:</strong> Ideal para minimizar poros y controlar la oleosidad.</li>`;
+            } else { 
+                complementaryHtml = `<li><strong>Sérum con Retinol:</strong> Potente activo para combatir líneas de expresión y mejorar la firmeza.</li>`;
+            }
+
+            return `
+                <div id="analysis-results-section" class="mt-6">
+                     <h3 class="font-semibold text-lg text-gray-800 mb-3">📋 Resultado del Análisis</h3>
+                     <div class="text-gray-600 text-sm space-y-2">
+                        <p>Detectamos signos en las siguientes 5 zonas clave:</p>
+                        <ul class="list-none space-y-2">${resultsListHtml}</ul>
+                     </div>
+                </div>
+                <div id="combo-section" class="mt-6 bg-white p-4 rounded-xl border-2 border-brand-burgundy">
+                    <h3 class="font-semibold text-lg text-gray-800 mb-3">🧴 ${recommendationName} Recomendado</h3>
+                     <div class="flex items-center justify-around mt-4">
+                         <img src="${comboDetails.image}" alt="${recommendationName}" class="w-40 h-auto object-cover rounded-lg">
+                    </div>
+                     <div class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 text-sm rounded flex items-center">
+                        <img src="${DATA.giftImageUrl}" alt="Regalo" class="h-12 w-12 rounded-full mr-3" />
+                        <p>🎁 <strong>Regalo Exclusivo:</strong> ¡Lleva tu combo con el 30% OFF y te regalamos una rutina inteligente!</p>
+                    </div>
+                    <div class="mt-2 p-3 bg-green-100 border-l-4 border-green-400 text-green-800 text-sm rounded">
+                        <p>🎉 <strong>¡Extra!</strong> Con tu compra, recibí un regalo sorpresa y un cupón del 10% para tu próxima visita.</p>
+                    </div>
+                    <a href="${comboDetails.link}" target="_blank" class="block w-full btn-primary mt-4 text-center">¡Quiero mi combo con el 30% OFF!</a>
+                </div>
+                <div id="complementary-section" class="mt-6">
+                     <h3 class="font-semibold text-lg text-gray-800 mb-3">✨ Productos Complementarios Sugeridos</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                        <li><strong>Gel Limpiador:</strong> Para usar con tu cepillo y preparar la piel.</li>
+                        <li><strong>Gel Conductor:</strong> Indispensable para el uso de tecnologías EMS.</li>
+                        ${complementaryHtml}
+                    </ul>
+                </div>
+                 <div id="reviews-section" class="mt-6">
+                    <h3 class="font-semibold text-lg text-gray-800 mb-3">💬 Reseñas de Clientas</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="bg-gray-100 p-3 rounded-lg"><p>"¡Increíble! Noté la piel más luminosa y los poros menos visibles en dos semanas." - ⭐⭐⭐⭐⭐ - Valeria G.</p></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><p>"El masajeador es mi nuevo mejor amigo. Siento el rostro más firme y descansado." - ⭐⭐⭐⭐⭐ - Sofía R.</p></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        DOM.userDataForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!DOM.termsCheckbox.checked) {
+                alert('Debes aceptar los términos para continuar.');
+                return;
+            }
+            state.userName = DOM.userNameInput.value || "Invitado";
+            DOM.greetName.textContent = state.userName;
+            navigateTo('concern');
+        });
+
+        DOM.toAnalysisButton.addEventListener('click', () => DOM.fileInput.click() );
+        DOM.fileInput.addEventListener('change', (event) => { if (event.target.files[0]) startImageProcessing(event.target.files[0]); });
+        
+        DOM.restartButton.addEventListener('click', () => { init(); });
+
+        init();
+    });
+    </script>
+</body>
+</html>
