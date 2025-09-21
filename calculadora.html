@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Calculadora de Edad Aparente - Radiant Skin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+
+    <style>
+        :root {
+            --brand-burgundy: #9A344A;
+            --brand-pink-light: #FDF6F9;
+            --brand-pink: #F8D8E6;
+            --brand-gold: #C8A96B;
+            --text-dark: #3a3230;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(160deg, #FDF6F9 0%, #FFF5E1 100%);
+            color: var(--text-dark);
+        }
+        
+        main { transition: all 0.5s ease-in-out; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        .btn-primary {
+            background-color: var(--brand-burgundy);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background-color: #7A293A; transform: translateY(-2px); }
+        .btn-primary:disabled { background-color: #C5919D; cursor: not-allowed; transform: translateY(0); }
+        
+        .btn-secondary {
+            background-color: #fff;
+            color: var(--brand-burgundy);
+            border: 2px solid var(--brand-burgundy);
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background-color: var(--brand-pink-light); transform: translateY(-2px); }
+
+        .glow-soft {
+            box-shadow: 0 0 15px rgba(250, 200, 220, 0.6), 0 0 30px rgba(250, 200, 220, 0.3);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 10px rgba(250, 200, 220, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(250, 200, 220, 0.6); }
+            100% { box-shadow: 0 0 10px rgba(250, 200, 220, 0.3); }
+        }
+
+        .scan-line-container { position: absolute; top: 0; bottom: 0; left: 0; right: 0; overflow: hidden; animation: scan-line-anim 3s ease-in-out infinite; }
+        .scan-line { width: 100%; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%); position: absolute; }
+        @keyframes scan-line-anim { 0% { transform: translateY(-10px); } 100% { transform: translateY(100%); } }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <main class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+
+        <section id="start-screen" class="p-6 text-center bg-white rounded-2xl screen active">
+            <div class="flex flex-col items-center">
+                <img src="https://i.imgur.com/gITwpdZ.jpg" alt="Skin Li analiza tu rostro" class="rounded-xl w-full max-w-xs mx-auto glow-soft mb-6"/>
+                <h1 class="text-2xl font-bold text-gray-800">Calculadora de Edad Aparente</h1>
+                <h2 class="text-md text-[#9A344A] font-semibold mt-1">¿Qué edad aparenta tu piel?</h2>
+            </div>
+            <form id="user-data-form" class="mt-6 text-left">
+                <p class="text-xs text-center text-gray-500 mb-4">Nuestra IA analizará tu foto para darte una estimación de la edad que aparenta tu piel. ¡Es solo por diversión!</p>
+                <input type="text" id="user-name" placeholder="Tu nombre" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#9A344A]"/>
+                <input type="number" id="user-age" placeholder="Tu edad real" required class="w-full px-4 py-2 mt-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#9A344A]"/>
+                <button type="submit" class="btn-primary w-full mt-4">Siguiente Paso</button>
+            </form>
+        </section>
+
+        <section id="capture-screen" class="p-6 text-center screen">
+             <h2 class="text-xl font-bold text-gray-800 mb-4">Subí tu Foto</h2>
+             <p class="text-sm text-gray-600 mb-4">Para una estimación precisa, usá una foto con buena iluminación, mirando al frente y sin sonreir.</p>
+             <div class="relative w-full aspect-square mx-auto rounded-lg overflow-hidden bg-gray-200 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                 <video id="video-preview" class="w-full h-full object-cover hidden" playsinline autoplay></video>
+                 <img id="image-preview" src="" alt="Vista previa" class="w-full h-full object-cover hidden"/>
+                 <p id="capture-placeholder" class="text-gray-500">Tu cámara aparecerá aquí</p>
+             </div>
+             <div class="flex flex-col gap-3 mt-4">
+                 <button id="start-camera-btn" class="btn-primary w-full">Activar Cámara</button>
+                 <button id="capture-btn" class="btn-primary w-full hidden">Tomar Foto</button>
+                 <label class="btn-secondary w-full text-center">
+                   Subir una foto
+                   <input type="file" id="upload-input" accept="image/*" class="hidden"/>
+                 </label>
+             </div>
+             <button id="start-analysis-btn" class="btn-primary w-full mt-4 hidden">Calcular Edad Aparente</button>
+        </section>
+        
+        <section id="analysis-screen" class="p-6 screen">
+            <h3 class="text-center text-xl font-bold text-gray-800 mb-4">Analizando tu Piel...</h3>
+            <div class="relative w-full aspect-square mx-auto rounded-lg overflow-hidden bg-gray-200 glow-soft">
+                <img id="analysis-image-preview" src="" alt="Foto del usuario para análisis" class="w-full h-full object-cover"/>
+                <div class="scan-line-container">
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            <div class="mt-6 px-2">
+                <div class="w-full bg-[#F8D8E6] rounded-full h-4">
+                    <div id="progress-bar-fill" class="bg-brand-burgundy h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="analysis-text" class="text-center mt-2 text-sm text-gray-600 font-semibold"></p>
+            </div>
+        </section>
+
+        <section id="results-screen" class="p-6 screen text-center">
+             <div id="report-content">
+                 <h2 class="text-2xl font-bold">¡Resultado del Análisis!</h2>
+                 <p class="text-md text-gray-600 mb-4">Hola <span id="result-user-name" class="font-semibold"></span>, según nuestra IA, la edad de tu piel es de:</p>
+                 
+                 <div class="my-6">
+                    <p class="text-7xl font-bold text-brand-burgundy" id="apparent-age-result"></p>
+                    <p class="font-semibold">años aparentes</p>
+                 </div>
+
+                 <div class="bg-brand-pink-light p-4 rounded-lg mb-4">
+                    <p class="text-sm">Tu edad real: <strong id="real-age-display"></strong> años</p>
+                    <p id="age-comparison-text" class="font-bold text-lg text-brand-burgundy mt-2"></p>
+                 </div>
+                 
+                 <div id="tip-section" class="mt-6">
+                    <h3 class="font-bold text-lg text-brand-burgundy">Un tip para vos:</h3>
+                    <p id="tip-text" class="text-sm text-gray-600 mt-2"></p>
+                 </div>
+
+             </div>
+             <a href="https://www.rostroradianteaparatos.com.ar/combos-inteligentes/" class="btn-primary inline-block mt-6">Descubrí tu Combo Ideal</a>
+             <button id="restart-btn" class="btn-secondary w-full mt-3 text-sm" style="background: transparent; border: none; color: #888;">Probar con otra foto</button>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        const state = { 
+            userName: '',
+            userRealAge: 0,
+            imageBase64: '', 
+            analysisSteps:[
+                "Analizando simetría facial...",
+                "Evaluando textura de la piel...",
+                "Detectando líneas de expresión...",
+                "Midiendo uniformidad del tono...",
+                "¡Calculando edad aparente!"
+            ] 
+        };
+
+        const DOM = {
+            screens: document.querySelectorAll('.screen'),
+            userDataForm: document.getElementById('user-data-form'),
+            userNameInput: document.getElementById('user-name'),
+            userAgeInput: document.getElementById('user-age'),
+            startCameraBtn: document.getElementById('start-camera-btn'),
+            captureBtn: document.getElementById('capture-btn'),
+            uploadInput: document.getElementById('upload-input'),
+            videoPreview: document.getElementById('video-preview'),
+            imagePreview: document.getElementById('image-preview'),
+            capturePlaceholder: document.getElementById('capture-placeholder'),
+            startAnalysisBtn: document.getElementById('start-analysis-btn'),
+            analysisImagePreview: document.getElementById('analysis-image-preview'),
+            progressBarFill: document.getElementById('progress-bar-fill'),
+            analysisText: document.getElementById('analysis-text'),
+            resultUserName: document.getElementById('result-user-name'),
+            apparentAgeResult: document.getElementById('apparent-age-result'),
+            realAgeDisplay: document.getElementById('real-age-display'),
+            ageComparisonText: document.getElementById('age-comparison-text'),
+            tipText: document.getElementById('tip-text'),
+            restartBtn: document.getElementById('restart-btn')
+        };
+        
+        let videoStream = null;
+
+        function navigateTo(screenId) {
+            DOM.screens.forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        DOM.userDataForm.addEventListener('submit', e => {
+            e.preventDefault();
+            state.userName = DOM.userNameInput.value;
+            state.userRealAge = parseInt(DOM.userAgeInput.value, 10);
+            navigateTo('capture-screen');
+        });
+
+        DOM.startCameraBtn.addEventListener('click', async () => {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                DOM.videoPreview.srcObject = videoStream;
+                DOM.videoPreview.play();
+                DOM.videoPreview.classList.remove('hidden');
+                DOM.capturePlaceholder.classList.add('hidden');
+                DOM.startCameraBtn.classList.add('hidden');
+                DOM.captureBtn.classList.remove('hidden');
+            } catch (err) {
+                 alert("No se pudo acceder a la cámara. Por favor, asegúrate de haber dado los permisos necesarios.");
+            }
+        });
+
+        DOM.captureBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = DOM.videoPreview.videoWidth;
+            canvas.height = DOM.videoPreview.videoHeight;
+            canvas.getContext('2d').drawImage(DOM.videoPreview, 0, 0);
+            state.imageBase64 = canvas.toDataURL('image/jpeg');
+            DOM.imagePreview.src = state.imageBase64;
+            DOM.imagePreview.classList.remove('hidden');
+            DOM.videoPreview.classList.add('hidden');
+            DOM.startAnalysisBtn.classList.remove('hidden');
+            stopCamera();
+        });
+
+        DOM.uploadInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    state.imageBase64 = event.target.result;
+                    DOM.imagePreview.src = state.imageBase64;
+                    DOM.imagePreview.classList.remove('hidden');
+                    DOM.videoPreview.classList.add('hidden');
+                    DOM.capturePlaceholder.classList.add('hidden');
+                    DOM.startAnalysisBtn.classList.remove('hidden');
+                    stopCamera();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function stopCamera() {
+            if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+            DOM.startCameraBtn.classList.remove('hidden');
+            DOM.captureBtn.classList.add('hidden');
+        }
+        
+        DOM.startAnalysisBtn.addEventListener('click', () => {
+            navigateTo('analysis-screen');
+            simulateAnalysis();
+        });
+
+        function simulateAnalysis() {
+            DOM.analysisImagePreview.src = state.imageBase64;
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step >= state.analysisSteps.length) {
+                    clearInterval(interval);
+                    DOM.analysisText.textContent = "Análisis completado 💖";
+                    setTimeout(() => {
+                        generateResults();
+                        navigateTo('results-screen');
+                    }, 1000);
+                    return;
+                }
+                DOM.analysisText.textContent = state.analysisSteps[step];
+                DOM.progressBarFill.style.width = `${((step + 1) / state.analysisSteps.length) * 100}%`;
+                step++;
+            }, 800);
+        }
+
+        function generateResults(){
+            DOM.resultUserName.textContent = state.userName;
+            DOM.realAgeDisplay.textContent = state.userRealAge;
+
+            // Simulación de la edad aparente
+            const ageDifference = Math.floor(Math.random() * 7) - 3; // Entre -3 y +3 años
+            const apparentAge = state.userRealAge + ageDifference;
+            DOM.apparentAgeResult.textContent = apparentAge;
+
+            let comparisonText = '';
+            let tipText = '';
+
+            if (apparentAge < state.userRealAge) {
+                comparisonText = `¡Lucís ${state.userRealAge - apparentAge} años más joven!`;
+                tipText = "¡Excelente! Tu piel refleja un cuidado increíble. Para mantener esa juventud y luminosidad, el Combo Inteligente Esencial es perfecto para vos.";
+            } else if (apparentAge > state.userRealAge) {
+                comparisonText = `Tu piel aparenta ${apparentAge - state.userRealAge} años más.`;
+                tipText = "¡No te preocupes! Estás a tiempo de revertirlo. Para combatir los signos de la edad y la flacidez, el Combo Inteligente Premium es tu mejor aliado.";
+            } else {
+                comparisonText = "¡Tu piel refleja tu edad real!";
+                tipText = "¡Perfecto! Estás en el camino correcto. Para potenciar la firmeza y prevenir futuros signos, te recomendamos el Combo Lifting Inteligente.";
+            }
+            DOM.ageComparisonText.textContent = comparisonText;
+            DOM.tipText.textContent = tipText;
+        }
+        
+        DOM.restartBtn.addEventListener('click', () => {
+            state.userName = '';
+            state.userRealAge = 0;
+            state.imageBase64 = '';
+            DOM.userDataForm.reset();
+            DOM.imagePreview.src = '';
+            DOM.imagePreview.classList.add('hidden');
+            DOM.capturePlaceholder.classList.remove('hidden');
+            DOM.startAnalysisBtn.classList.add('hidden');
+            DOM.progressBarFill.style.width = '0%';
+            stopCamera();
+            navigateTo('start-screen');
+        });
+
+    });
+    </script>
+</body>
+</html>
