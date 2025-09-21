@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Diagnóstico Integral - Radiant Skin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --brand-burgundy: #9A344A;
+            --brand-pink-light: #FDF6F9;
+            --brand-pink: #F8D8E6;
+            --brand-gold: #C8A96B;
+            --brand-green-box: #EBF9F5;
+            --brand-green-text: #006341;
+            --text-dark: #3a3230;
+            --text-muted: #555;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(160deg, #FDF6F9 0%, #FFF5E1 100%);
+            color: var(--text-dark);
+        }
+        
+        main { transition: all 0.5s ease-in-out; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        .btn-primary {
+            background-color: var(--brand-burgundy);
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background-color: #7A293A; transform: translateY(-2px); }
+        .btn-primary:disabled { background-color: #C5919D; cursor: not-allowed; transform: translateY(0); }
+        .btn-secondary {
+            background-color: #fff;
+            color: var(--brand-burgundy);
+            border: 2px solid var(--brand-burgundy);
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background-color: var(--brand-pink-light); transform: translateY(-2px); }
+
+        .scan-line-container { position: absolute; top: 0; bottom: 0; left: 0; right: 0; overflow: hidden; animation: scan-line-anim 3s ease-in-out infinite; }
+        .scan-line { width: 100%; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%); position: absolute; }
+        @keyframes scan-line-anim { 0% { transform: translateY(-10px); } 100% { transform: translateY(100%); } }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        #results-screen h2 { color: var(--brand-burgundy); }
+        .detection-list { list-style-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%239A344A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'); padding-left: 25px; }
+        .detection-list li { margin-bottom: 10px; padding-left: 5px; }
+        
+        .routine-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .routine-table th, .routine-table td { padding: 8px; border: 1px solid var(--brand-pink); text-align: left; font-size: 0.9rem;}
+        .routine-table th { background-color: var(--brand-pink-light); font-weight: bold; }
+
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both; }
+
+        @media print {
+          body { background: #fff; }
+          button, #restart-btn, #download-pdf-btn, #final-promo-banner { display: none !important; }
+          main { box-shadow: none; }
+          #promo-banner { border: 2px solid var(--brand-burgundy); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <main class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+
+        <section id="start-screen" class="p-6 text-center bg-white rounded-2xl screen active">
+            <div class="flex flex-col items-center">
+                <img src="https://i.imgur.com/gITwpdZ.jpg" alt="Skin Li analiza tu rostro" class="rounded-xl w-full max-w-xs mx-auto shadow-lg mb-6" loading="lazy"/>
+                <h1 class="text-2xl font-bold">Análisis facial SkinLi</h1>
+                <h2 class="text-md text-[#9A344A] font-semibold mt-1">Averigua que edad representa tu piel</h2>
+            </div>
+            <form id="user-data-form" class="mt-6 text-left">
+                <p class="text-xs text-center text-gray-500 mb-4">Esta es una representación orientativa por medio de IA con resultados estimados.</p>
+                <input type="text" id="user-name" placeholder="Tu nombre" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#9A344A]"/>
+                <input type="number" id="user-age" placeholder="Tu edad real" required class="w-full px-4 py-2 mt-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#9A344A]"/>
+                <label class="text-xs flex items-center justify-center text-gray-600 mt-4">
+                    <input type="checkbox" id="terms-checkbox" required class="mr-2"/>
+                    Autorizo el uso de mi imagen para el diagnóstico.
+                </label>
+                <p id="terms-error" class="text-xs text-center text-red-600 mt-2 font-semibold hidden">Debes aceptar para continuar.</p>
+                <button type="submit" class="btn-primary w-full mt-4">Siguiente Paso</button>
+            </form>
+        </section>
+
+        <section id="capture-screen" class="p-6 text-center screen">
+             <h2 class="text-xl font-bold mb-4">Subí tu Foto</h2>
+             <p class="text-sm text-gray-600 mb-4">Para un análisis preciso, usá una foto con buena iluminación, mirando al frente y sin sonreir.</p>
+             <div class="relative w-full aspect-square mx-auto rounded-lg overflow-hidden bg-gray-200 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                 <video id="video-preview" class="w-full h-full object-cover hidden" playsinline autoplay></video>
+                 <img id="image-preview" src="" alt="Vista previa" class="w-full h-full object-cover hidden" loading="lazy"/>
+                 <p id="capture-placeholder" class="text-gray-500">Tu cámara aparecerá aquí</p>
+             </div>
+             <div class="flex flex-col gap-3 mt-4">
+                 <button id="start-camera-btn" class="btn-primary w-full">Activar Cámara</button>
+                 <button id="capture-btn" class="btn-primary w-full hidden" aria-label="Tomar foto">Tomar Foto</button>
+                 <label class="btn-secondary w-full text-center">
+                   Subir una foto
+                   <input type="file" id="upload-input" accept="image/*" class="hidden"/>
+                 </label>
+             </div>
+             <button id="start-analysis-btn" class="btn-primary w-full mt-4 hidden" aria-label="Iniciar análisis facial">Analizar mi Rostro</button>
+        </section>
+        
+        <section id="analysis-screen" class="p-6 screen">
+            <h3 class="text-center text-xl font-bold mb-4">Analizando tu Piel...</h3>
+            <div class="relative w-full aspect-square mx-auto rounded-lg overflow-hidden bg-gray-200">
+                <img id="analysis-image-preview" src="" alt="Foto del usuario para análisis" class="w-full h-full object-cover" loading="lazy"/>
+                <div class="scan-line-container">
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            <div class="mt-6 px-2">
+                <div class="w-full bg-[#F8D8E6] rounded-full h-4">
+                    <div id="progress-bar-fill" class="bg-brand-burgundy h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="analysis-text" class="text-center mt-2 text-sm font-semibold"></p>
+            </div>
+        </section>
+
+        <section id="results-screen" class="p-6 screen">
+             <div id="report-content">
+                 <h2 class="text-2xl font-bold text-center">Tu Diagnóstico Integral</h2>
+                 <p class="text-md text-gray-600 mb-4 text-center">Hola <span id="result-user-name" class="font-semibold"></span>, aquí está tu resultado:</p>
+                 
+                 <div class="bg-brand-pink-light p-4 rounded-lg mb-4 text-center">
+                    <h3 class="font-bold text-lg text-brand-burgundy">Edad Aparente de tu Piel</h3>
+                    <p class="text-7xl font-bold text-brand-burgundy" id="apparent-age-result"></p>
+                    <p class="font-semibold -mt-2">años</p>
+                    <p class="text-sm">Tu edad real: <strong id="real-age-display"></strong> años</p>
+                    <p id="age-comparison-text" class="font-bold text-lg text-brand-burgundy mt-2"></p>
+                 </div>
+
+                 <div class="bg-brand-pink-light p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-lg text-brand-burgundy">Resultado del Análisis Facial</h3>
+                    <p class="text-sm text-gray-600 mt-2">Detectamos signos en las siguientes 6 zonas clave:</p>
+                    <ul id="zone-detections" class="detection-list text-sm space-y-2 mt-2"></ul>
+                 </div>
+
+                 <div class="border border-pink-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-500 text-center">Tu Combo Inteligente Recomendado</h3>
+                    <img id="combo-image" src="" alt="Combo Recomendado" class="w-48 mx-auto my-3 rounded-lg shadow-md" loading="lazy"/>
+                    <h4 id="combo-name" class="text-xl font-bold text-brand-burgundy text-center"></h4>
+                    <p id="combo-description" class="text-sm text-gray-600 mt-2 mb-4 text-center"></p>
+
+                    <h3 class="font-bold text-lg text-brand-burgundy text-center mt-4">Tu Rutina de 21 Días</h3>
+                    <table id="routine-table" class="routine-table"></table>
+                 </div>
+
+                 <div id="promo-banner" class="mt-6 bg-gradient-to-r from-pink-100 to-rose-100 border-2 border-pink-200 p-4 rounded-2xl text-center shadow-lg">
+                    <h3 class="font-bold text-xl text-brand-burgundy">¡Tu Oferta Exclusiva!</h3>
+                    <p class="text-gray-700 mt-2 text-3xl font-bold">30% OFF</p>
+                    <div id="gift-section" class="text-gray-600 mt-2 font-semibold"></div>
+                    <a id="combo-link" href="#" class="btn-primary inline-block mt-4" target="_blank">¡Lo Quiero!</a>
+                 </div>
+                 
+                 <div class="mt-6 text-center">
+                    <img src="https://i.imgur.com/t4gmyuw.png" alt="Análisis completado por Skin-Li" class="w-24 h-24 mx-auto rounded-full shadow-lg border-4 border-white"/>
+                </div>
+
+             </div>
+             <button id="download-pdf-btn" class="btn-secondary w-full mt-4 text-sm" aria-label="Descargar tu diagnóstico en PDF">Descargar Reporte</button>
+             <button id="restart-btn" class="btn-secondary w-full mt-3 text-sm" style="background: transparent; border: none; color: #888;">Comenzar de Nuevo</button>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    
+        const state = { 
+            userName: '',
+            userRealAge: 0,
+            imageBase64: '', 
+            analysisSteps:[
+                "Analizando simetría facial...", "Evaluando textura...", "Detectando líneas de expresión...",
+                "Midiendo uniformidad del tono...", "Calculando edad aparente...", "¡Generando diagnóstico!"
+            ] 
+        };
+
+        const DATABASE = {
+            zoneDetections: {
+                "Acné y Poros":"Poros dilatados y puntos negros en zona T.",
+                "Manchas y Tono Desigual":"Tono irregular y manchas visibles.",
+                "Arrugas y Líneas":"Arrugas finas y de expresión en frente y ojos.",
+                "Rosácea y Rojez":"Sensibilidad y enrojecimiento en mejillas.",
+                "Deshidratación":"Piel opaca, fina y con poca luminosidad.",
+                "Piel Sensible":"Reactividad cutánea elevada, requiere cuidado suave.",
+                "Bolsas en los ojos":"Hinchazón debajo de los párpados inferiores.",
+                "Piel fina":"Aspecto frágil y traslúcido.",
+                "Flacidez":"Pérdida de firmeza en mejillas y óvalo facial.",
+                "Papada":"Acumulación de tejido bajo el mentón."
+            },
+            comboData: {
+                limpieza:{name:"Combo Limpieza Inteligente", description:"Para purificar tu piel, eliminar puntos negros y refinar la textura.", image:"https://i.imgur.com/60dc6c.jpg",link:"https://www.rostroradianteaparatos.com.ar/productos/combo-limpieza-inteligente-2-fundas-se-silicona-de-regalo/", includesGel: false, routine: "Días 1-7: Espátula 3x/sem. Días 8-21: Alternar con Cepillo."},
+                premium:{name:"Combo Inteligente Premium", description:"El tratamiento anti-age más completo para firmeza, unificación del tono y renovación total.", image:"https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-electronicos-0ba7f3ba771f2c86fa17506324909203-1024-1024.webp",link:"https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-premium-40-off-kit-total-para-cuidado-facial-completo/", includesGel: true, routine: "Alternar dispositivos cada noche. D1: Lifting, D2: EMS, D3: Limpieza, D4: Descanso."},
+                lifting:{name:"Combo Lifting Inteligente", description:"Ideal para redefinir el contorno facial, tratar flacidez y papada con un efecto tensor visible.", image:"https://dcdn-us.mitiendanube.com/stores/006/059/491/products/dispositivos-de-cuidado-facial-premium-c90dd80220d41199af17496433262794-1024-1024.webp",link:"https://www.rostroradianteaparatos.com.ar/productos/combo-lifting-inteligente-cuello-y-rostro-masajeador-sonico-7-en-1-rodillo-ems/", includesGel: true, routine: "Mañana: Rodillo EMS 5 min. Noche: Masajeador 7 en 1 (10 min)."},
+                esencial:{name:"Combo Esencial Inteligente", description:"El kit perfecto para iniciar tu rutina, combinando una limpieza profunda con tonificación para una piel radiante.", image:"https://dcdn-us.mitiendanube.com/stores/006/059/491/products/chatgpt-image-16-jun-2025-07_04_06-p-m-53336102a18978359b17506300413674-1024-1024.webp",link:"https://www.rostroradianteaparatos.com.ar/productos/combo-inteligente-esencial-masajeador-ems-espatula-cepillo-5-en-1/", includesGel: false, routine: "Mañana: Cepillo 5 en 1. Noche: Espátula 3x/sem, alternando con Masajeador EMS."}
+            }
+        };
+
+        const DOM = {
+            screens: document.querySelectorAll('.screen'),
+            userDataForm: document.getElementById('user-data-form'),
+            userNameInput: document.getElementById('user-name'),
+            userAgeInput: document.getElementById('user-age'),
+            termsCheckbox: document.getElementById('terms-checkbox'),
+            termsError: document.getElementById('terms-error'),
+            startCameraBtn: document.getElementById('start-camera-btn'),
+            captureBtn: document.getElementById('capture-btn'),
+            uploadInput: document.getElementById('upload-input'),
+            videoPreview: document.getElementById('video-preview'),
+            imagePreview: document.getElementById('image-preview'),
+            capturePlaceholder: document.getElementById('capture-placeholder'),
+            startAnalysisBtn: document.getElementById('start-analysis-btn'),
+            analysisImagePreview: document.getElementById('analysis-image-preview'),
+            progressBarFill: document.getElementById('progress-bar-fill'),
+            analysisText: document.getElementById('analysis-text'),
+            reportContent: document.getElementById('report-content'),
+            resultUserName: document.getElementById('result-user-name'),
+            apparentAgeResult: document.getElementById('apparent-age-result'),
+            realAgeDisplay: document.getElementById('real-age-display'),
+            ageComparisonText: document.getElementById('age-comparison-text'),
+            zoneDetections: document.getElementById('zone-detections'),
+            comboImage: document.getElementById('combo-image'),
+            comboName: document.getElementById('combo-name'),
+            comboDescription: document.getElementById('combo-description'),
+            routineTable: document.getElementById('routine-table'),
+            giftSection: document.getElementById('gift-section'),
+            comboLink: document.getElementById('combo-link'),
+            downloadPdfBtn: document.getElementById('download-pdf-btn'),
+            restartBtn: document.getElementById('restart-btn')
+        };
+        
+        let videoStream = null;
+
+        function navigateTo(screenId) {
+            DOM.screens.forEach(screen => screen.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        DOM.userDataForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const termsLabel = DOM.termsCheckbox.parentElement;
+            
+            if (!DOM.termsCheckbox.checked) {
+                DOM.termsError.classList.remove('hidden');
+                termsLabel.classList.add('shake');
+                setTimeout(() => {
+                    termsLabel.classList.remove('shake');
+                }, 820);
+                return;
+            }
+            DOM.termsError.classList.add('hidden');
+            state.userName = DOM.userNameInput.value;
+            state.userRealAge = parseInt(DOM.userAgeInput.value, 10);
+            navigateTo('capture-screen');
+        });
+
+        DOM.startCameraBtn.addEventListener('click', async () => {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                DOM.videoPreview.srcObject = videoStream;
+                DOM.videoPreview.play();
+                DOM.videoPreview.classList.remove('hidden');
+                DOM.capturePlaceholder.classList.add('hidden');
+                DOM.startCameraBtn.classList.add('hidden');
+                DOM.captureBtn.classList.remove('hidden');
+            } catch (err) {
+                 alert("No se pudo acceder a la cámara. Por favor, asegúrate de haber dado los permisos necesarios.");
+            }
+        });
+
+        DOM.captureBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = DOM.videoPreview.videoWidth;
+            canvas.height = DOM.videoPreview.videoHeight;
+            canvas.getContext('2d').drawImage(DOM.videoPreview, 0, 0);
+            state.imageBase64 = canvas.toDataURL('image/jpeg');
+            DOM.imagePreview.src = state.imageBase64;
+            DOM.imagePreview.classList.remove('hidden');
+            DOM.videoPreview.classList.add('hidden');
+            DOM.startAnalysisBtn.classList.remove('hidden');
+            stopCamera();
+        });
+
+        DOM.uploadInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    state.imageBase64 = event.target.result;
+                    DOM.imagePreview.src = state.imageBase64;
+                    DOM.imagePreview.classList.remove('hidden');
+                    DOM.videoPreview.classList.add('hidden');
+                    DOM.capturePlaceholder.classList.add('hidden');
+                    DOM.startAnalysisBtn.classList.remove('hidden');
+                    stopCamera();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function stopCamera() {
+            if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+            DOM.startCameraBtn.classList.remove('hidden');
+            DOM.captureBtn.classList.add('hidden');
+        }
+        
+        DOM.startAnalysisBtn.addEventListener('click', () => {
+            navigateTo('analysis-screen');
+            simulateAnalysis();
+        });
+
+        function simulateAnalysis() {
+            DOM.analysisImagePreview.src = state.imageBase64;
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step >= state.analysisSteps.length) {
+                    clearInterval(interval);
+                    DOM.analysisText.textContent = "Análisis completado 💖";
+                    setTimeout(() => {
+                        generateResults();
+                        navigateTo('results-screen');
+                    }, 1000);
+                    return;
+                }
+                DOM.analysisText.textContent = state.analysisSteps[step];
+                DOM.progressBarFill.style.width = `${((step + 1) / state.analysisSteps.length) * 100}%`;
+                step++;
+            }, 800);
+        }
+
+        function generateResults(){
+            DOM.resultUserName.textContent = state.userName;
+
+            const ageDifference = Math.floor(Math.random() * 7) - 3;
+            const apparentAge = state.userRealAge + ageDifference;
+            DOM.apparentAgeResult.textContent = apparentAge;
+            DOM.realAgeDisplay.textContent = state.userRealAge;
+
+            let comparisonText = '';
+            let recommendedComboKey = 'esencial'; 
+            
+            if (apparentAge < state.userRealAge) {
+                comparisonText = `¡Lucís ${state.userRealAge - apparentAge} años más joven!`;
+                recommendedComboKey = 'esencial';
+            } else if (apparentAge > state.userRealAge) {
+                comparisonText = `Tu piel aparenta ${apparentAge - state.userRealAge} años más.`;
+                recommendedComboKey = 'premium';
+            } else {
+                comparisonText = "¡Tu piel refleja tu edad real!";
+                recommendedComboKey = 'lifting';
+            }
+            if(state.userRealAge < 25) recommendedComboKey = 'limpieza';
+
+            DOM.ageComparisonText.textContent = comparisonText;
+
+            const allDetections = Object.keys(DATABASE.zoneDetections);
+            const shuffled = allDetections.sort(() => 0.5 - Math.random());
+            DOM.zoneDetections.innerHTML = shuffled.slice(0, 6).map(key => `<li><b>${key}:</b> ${DATABASE.zoneDetections[key]}</li>`).join('');
+
+            const combo = DATABASE.comboData[recommendedComboKey];
+            DOM.comboImage.src = combo.image;
+            DOM.comboName.textContent = combo.name;
+            DOM.comboDescription.textContent = combo.description;
+            DOM.comboLink.href = combo.link;
+            
+            const routineParts = combo.routine.split('Días 8-21:');
+            DOM.routineTable.innerHTML = `
+                <thead>
+                    <tr><th>Semana</th><th>Rutina Sugerida</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Semana 1</td><td>${routineParts[0].replace('Días 1-7: ','')}</td></tr>
+                    <tr><td>Semanas 2 y 3</td><td>${routineParts[1] || 'Continuar con la rutina de la semana 1.'}</td></tr>
+                </tbody>
+            `;
+
+            DOM.giftSection.innerHTML = `
+                <p>+ 🎁 Gel Conductor de REGALO</p>
+                <p>+ ✨ ¡Regalos Sorpresa!</p>
+            `;
+            if(!combo.includesGel){
+                 DOM.giftSection.querySelector('p').style.display = 'none';
+            }
+            
+            const promoBanner = document.querySelector("#promo-banner p.text-3xl");
+            if (promoBanner) {
+                if (recommendedComboKey === 'premium') {
+                    promoBanner.textContent = "40% OFF";
+                } else {
+                    promoBanner.textContent = "30% OFF";
+                }
+            }
+        }
+        
+        DOM.downloadPdfBtn.addEventListener('click', () => {
+             const element = document.getElementById('report-content');
+             html2pdf().set({filename: `Reporte_RadiantSkin_${state.userName}.pdf`}).from(element).save();
+        });
+        
+        DOM.restartBtn.addEventListener('click', () => {
+            state.userName = '';
+            state.userRealAge = 0;
+            state.imageBase64 = '';
+            DOM.userDataForm.reset();
+            DOM.imagePreview.src = '';
+            DOM.imagePreview.classList.add('hidden');
+            DOM.capturePlaceholder.classList.remove('hidden');
+            DOM.startAnalysisBtn.classList.add('hidden');
+            DOM.progressBarFill.style.width = '0%';
+            stopCamera();
+            navigateTo('start-screen');
+        });
+
+    });
+    </script>
+</body>
+</html>
+
